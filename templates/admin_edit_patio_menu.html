@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Cardápio do Pátio - Admin</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
+        .header { background-color: #343a40; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header a { color: #ffc107; text-decoration: none; font-weight: 600; }
+        .container { padding: 30px; max-width: 900px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.075); }
+        .container h2 { margin-top: 0; color: #495057; font-size: 22px; border-bottom: 1px solid #dee2e6; padding-bottom: 10px; margin-bottom: 20px;}
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .form-group input[type="text"], .form-group input[type="file"], .form-group textarea { width: calc(100% - 24px); padding: 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .form-group input:focus, .form-group textarea:focus { border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); outline: none; }
+        .form-group img.preview { max-width: 250px; height: auto; display:block; margin-top:10px; border-radius: 4px; border: 1px solid #ddd; }
+        .btn-save { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 600; }
+        .btn-save:hover { background-color: #218838; }
+        .btn-back { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 16px; }
+        .btn-back:hover { background-color: #5a6268; }
+        .current-image-info { font-size: 0.9em; color: #555; margin-bottom: 5px;}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Editar Cardápio - Tela do Pátio</h1>
+        <a href="{{ url_for('admin_logout') }}">Sair</a>
+    </div>
+    <div class="container">
+        <h2>Modifique o cardápio do dia:</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="menu_text">Texto do Cardápio:</label>
+                <textarea id="menu_text" name="menu_text" required>{{ menu.texto }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="menu_image_file">Nova Imagem do Prato (opcional):</label>
+                <input type="file" id="menu_image_file" name="menu_image_file" accept="image/png, image/jpeg, image/gif">
+                <small>Se nenhuma nova imagem for selecionada, a imagem atual será mantida.</small>
+            </div>
+
+            {% if menu.imagemUrl %}
+            <div class="form-group">
+                <p class="current-image-info">Imagem Atual:</p>
+                <img src="{{ url_for('static', filename=menu.imagemUrl) if menu.imagemUrl and menu.imagemUrl.startswith('uploads/') else menu.imagemUrl }}" alt="Preview do prato atual" class="preview">
+                <small>Caminho salvo: {{menu.imagemUrl}}</small>
+            </div>
+            {% endif %}
+            
+            <button type="submit" class="btn-save">Salvar Cardápio</button>
+        </form>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn-back">Voltar ao Painel</a>
+    </div>
+</body>
+</html>
