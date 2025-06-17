@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Tela: {{ screen.name }}</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f8f9fa; }
+        .header { background-color: #e67e22; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .container { padding: 30px; max-width: 1200px; margin: 20px auto; background-color: #fff; border-radius: 8px; }
+        .editor-wrapper { display: flex; gap: 30px; }
+        .layout-choices { flex-basis: 30%; }
+        .layout-preview { flex-grow: 1; border: 2px dashed #ccc; padding: 20px; border-radius: 8px; }
+        .layout-option { margin-bottom: 15px; }
+        .layout-option label { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
+        .layout-option input:checked + label { background-color: #d4edda; border-color: #28a745; }
+        .config-zone { display: none; }
+        .config-zone.active { display: block; }
+        .config-zone h3 { margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+        .btn-save { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        .btn-back { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header"><h1>Editando Layout: {{ screen.name }}</h1><a href="{{ url_for('admin_logout') }}" style="color:white;">Sair</a></div>
+    <div class="container">
+        <form method="POST">
+            <div class="editor-wrapper">
+                <div class="layout-choices">
+                    <h3>1. Escolha um Layout</h3>
+                    <div class="layout-option">
+                        <input type="radio" id="layout1" name="layout_template" value="coluna_unica" onchange="showConfig(this.value)" {% if layout_config.template == 'coluna_unica' %}checked{% endif %}>
+                        <label for="layout1">Coluna Única</label>
+                    </div>
+                    <div class="layout-option">
+                        <input type="radio" id="layout2" name="layout_template" value="duas_colunas" onchange="showConfig(this.value)" {% if layout_config.template == 'duas_colunas' %}checked{% endif %}>
+                        <label for="layout2">Duas Colunas (70/30)</label>
+                    </div>
+                     <div class="layout-option">
+                        <input type="radio" id="layout3" name="layout_template" value="patio" onchange="showConfig(this.value)" {% if layout_config.template == 'patio' %}checked{% endif %}>
+                        <label for="layout3">Layout do Pátio</label>
+                    </div>
+                </div>
+                <div class="layout-preview">
+                    <h3>2. Configure o Conteúdo</h3>
+                    <div id="config-coluna_unica" class="config-zone">
+                        <div class="form-group">
+                            <label for="main_content_1">Conteúdo Principal</label>
+                            <select name="main_content_1">
+                                <option value="slideshow_geral" {% if layout_config.main_content == 'slideshow_geral' %}selected{% endif %}>Slideshow de Imagens (Geral)</option>
+                                <option value="slideshow_secretaria" {% if layout_config.main_content == 'slideshow_secretaria' %}selected{% endif %}>Slideshow de Imagens (Secretaria)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="config-duas_colunas" class="config-zone">
+                        <div class="form-group">
+                            <label for="main_content_2">Coluna Principal (70%)</label>
+                            <select name="main_content_2">
+                                <option value="slideshow_geral" {% if layout_config.main_content == 'slideshow_geral' %}selected{% endif %}>Slideshow de Imagens (Geral)</option>
+                                <option value="slideshow_secretaria" {% if layout_config.main_content == 'slideshow_secretaria' %}selected{% endif %}>Slideshow de Imagens (Secretaria)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sidebar_content_2">Coluna Lateral (30%)</label>
+                            <select name="sidebar_content_2">
+                                 <option value="avisos_patio" {% if layout_config.sidebar_content == 'avisos_patio' %}selected{% endif %}>Avisos do Pátio</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="config-patio" class="config-zone">
+                        <p>Este layout é fixo e contém os blocos de Avisos, Cardápio e Timer do Intervalo.</p>
+                    </div>
+                </div>
+            </div>
+            <br><br>
+            <button type="submit" class="btn-save">Salvar Layout</button>
+        </form>
+        <a href="{{ url_for('admin_list_custom_screens') }}" class="btn-back">Voltar</a>
+    </div>
+    <script>
+        // CORREÇÃO: Passa os dados para um data-attribute no HTML para o JS ler de forma limpa.
+        const layoutConfigElement = document.createElement('div');
+        layoutConfigElement.setAttribute('data-config', '{{ layout_config|tojson|safe }}');
+        const layoutConfig = JSON.parse(layoutConfigElement.getAttribute('data-config'));
+        
+        function showConfig(layout) {
+            document.querySelectorAll('.config-zone').forEach(el => el.style.display = 'none');
+            const activeZone = document.getElementById(`config-${layout}`);
+            if(activeZone) activeZone.style.display = 'block';
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkedRadio = document.querySelector('input[name="layout_template"]:checked');
+            if (checkedRadio) {
+                showConfig(checkedRadio.value);
+            }
+        });
+    </script>
+</body>
+</html>
+```
+
+**O que mudou (a correção):**
+Em vez de colocar o código Jinja2 diretamente em uma variável JavaScript, a nova abordagem faz o seguinte:
+1.  Cria um elemento HTML temporário em JavaScript.
+2.  Usa `setAttribute` para colocar os dados do Flask (convertidos para JSON e marcados como `safe`) em um atributo `data-config` desse elemento.
+3.  O JavaScript então lê esse atributo de forma segura e usa `JSON.parse` para convertê-lo em um objeto JavaScript.
+
+Essa técnica é mais robusta, evita os erros de sintaxe no seu editor de código e é a maneira recomendada de passar dados complexos do backend para o frontend em cenários como es

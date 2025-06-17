@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Adicionar Imagem Agendada</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: #f8f9fa; }
+        .header { background-color: #343a40; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .container { padding: 30px; max-width: 700px; margin: 20px auto; background-color: #fff; border-radius: 8px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
+        .btn-save { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 600; }
+        .btn-back { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; }
+        .error { color: red; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header"><h1>Adicionar Imagem para Tela: {{ screen_type.capitalize() }}</h1><a href="{{ url_for('admin_logout') }}">Sair</a></div>
+    <div class="container">
+        {% if error %}<p class="error">{{ error }}</p>{% endif %}
+        <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="screen_type" value="{{ screen_type }}">
+            <div class="form-group">
+                <label for="image_file">Arquivo de Imagem (PNG, JPG, GIF):</label>
+                <input type="file" id="image_file" name="image_file" accept="image/*" required>
+            </div>
+            <div class="form-group">
+                <label for="start_date">Data de Início da Exibição:</label>
+                <input type="date" id="start_date" name="start_date" required>
+            </div>
+            <div class="form-group">
+                <label for="end_date">Data de Fim da Exibição:</label>
+                <input type="date" id="end_date" name="end_date" required>
+            </div>
+            <button type="submit" class="btn-save">Agendar Imagem</button>
+        </form>
+        <a href="{{ url_for('admin_list_images', screen_type=screen_type) }}" class="btn-back">Cancelar</a>
+    </div>
+</body>
+</html>

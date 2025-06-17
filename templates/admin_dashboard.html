@@ -3,73 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - Painel de TVs</title>
+    <title>Dashboard Admin - Painel IFMS</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
-        .header { background-color: #2c3e50; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .header { background-color: #007a2e; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .header .title-container { display: flex; align-items: center; gap: 15px; }
         .header h1 { margin: 0; font-size: 26px; }
+        .header img { max-height: 40px; }
         .header .user-actions a { color: #ecf0f1; text-decoration: none; font-weight: 500; margin-left: 20px; transition: color 0.2s; }
         .header .user-actions a:hover { color: #bdc3c7; }
         .container { padding: 30px; max-width: 1200px; margin: 30px auto; }
-        .section-title { font-size: 22px; color: #34495e; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; }
+        .section-title { font-size: 22px; color: #007a2e; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #009639; }
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
         .card { background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.12); }
-        .card-header { background-color: #3498db; color: white; padding: 15px 20px; font-size: 18px; font-weight: 600; display: flex; align-items: center; }
-        .card-header img { width: 24px; height: 24px; margin-right: 10px; filter: invert(1); }
+        .card-header { background-color: #02c24b; color: white; padding: 15px 20px; font-size: 18px; font-weight: 600; }
+        .card-header.custom-header { background-color: #e67e22; }
+        .card-header.global-header { background-color: #8e44ad; }
+        .card-header.system-header { background-color: #34495e; }
         .card-content { padding: 20px; }
         .nav-list { list-style-type: none; padding: 0; margin: 0; }
         .nav-list li { margin-bottom: 8px; }
-        .nav-list a { display: block; padding: 10px 15px; text-decoration: none; color: #2c3e50; background-color: #ecf0f1; border-radius: 4px; transition: background-color 0.2s, color 0.2s; }
-        .nav-list a:hover { background-color: #bdc3c7; color: #2c3e50; }
-        .nav-list small { color: #7f8c8d; font-size: 0.9em; }
-        .view-screen-link { display: inline-block; margin-top: 15px; font-size: 0.9em; background-color: #95a5a6; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; }
-        .view-screen-link:hover { background-color: #7f8c8d; }
+        .nav-list a { display: block; padding: 10px 15px; text-decoration: none; color: #2c3e50; background-color: #ecf0f1; border-radius: 4px; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Painel Administrativo Central</h1>
+        <div class="title-container">
+            <img src="{{ url_for('static', filename='ifms.svg') }}" alt="Logo IFMS">
+            <h1>Painel Administrativo Central</h1>
+        </div>
         <div class="user-actions"><a href="{{ url_for('admin_logout') }}">Sair (Logout)</a></div>
     </div>
     <div class="container">
-        <h2 class="section-title">Configurações Gerais</h2>
-        <div class="grid-container" style="margin-bottom: 30px;">
+        <h2 class="section-title">Gerenciamento de Conteúdo</h2>
+        <div class="grid-container">
             <div class="card">
-                <div class="card-header"><img src="/static/icons/global_icon.svg" alt="Ícone Global">Ações Gerais</div>
+                <div class="card-header global-header">Conteúdo Global</div>
                 <div class="card-content">
                     <ul class="nav-list">
-                        <li><a href="{{ url_for('admin_global_announcement') }}">Gerenciar Aviso Geral</a></li>
-                        <li><a href="{{ url_for('admin_list_devices') }}">Gerenciar Dispositivos (TVs)</a></li>
+                        <li><a href="{{ url_for('admin_global_announcement') }}">Aviso Geral</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">Telas de Conteúdo Fixo</div>
+                <div class="card-content">
+                     <ul class="nav-list">
+                        <li><a href="{{ url_for('admin_edit_patio_notices') }}">Avisos do Pátio</a></li>
+                        <li><a href="{{ url_for('admin_edit_patio_menu') }}">Cardápio do Pátio</a></li>
+                        <li><a href="{{ url_for('admin_edit_interval_schedule') }}">Horário do Intervalo</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header custom-header">Telas Personalizáveis</div>
+                 <div class="card-content">
+                    <p style="font-size: 0.9em; color: #555; margin-bottom: 15px;">Crie e edite telas com layouts e conteúdos flexíveis.</p>
+                    <ul class="nav-list">
+                        <li><a href="{{ url_for('admin_list_custom_screens') }}">Gerenciar Telas Personalizáveis</a></li>
+                        <li><a href="{{ url_for('admin_list_images', screen_type='geral') }}">Banco de Imagens Agendadas</a></li>
                     </ul>
                 </div>
             </div>
         </div>
-        <h2 class="section-title">Gerenciamento por Tela</h2>
+        <h2 class="section-title" style="margin-top: 40px;">Configurações do Sistema</h2>
         <div class="grid-container">
             <div class="card">
-                <div class="card-header"><img src="/static/icons/patio_icon.svg" alt="Ícone Pátio">Tela do Pátio</div>
+                <div class="card-header system-header">Dispositivos</div>
                 <div class="card-content">
                     <ul class="nav-list">
-                        <li><a href="{{ url_for('admin_edit_patio_notices') }}">Avisos Específicos</a></li>
-                        <li><a href="{{ url_for('admin_edit_patio_menu') }}">Cardápio do Dia</a></li>
-                        <li><a href="{{ url_for('admin_edit_interval_schedule') }}">Horário do Intervalo</a></li>
+                        <li><a href="{{ url_for('admin_list_devices') }}">Gerenciar Dispositivos (TVs)</a></li>
                     </ul>
-                    <a href="{{ url_for('display_patio') }}" target="_blank" class="view-screen-link">Visualizar Tela do Pátio</a>
                 </div>
-            </div>
-            <div class="card">
-                <div class="card-header"><img src="/static/icons/secretaria_icon.svg" alt="Ícone Secretaria">Tela da Secretaria (Cerel)</div>
-                <div class="card-content">
-                    <ul class="nav-list">
-                        <li><a href="{{ url_for('admin_edit_secretaria_notices') }}">Avisos da Secretaria</a></li>
-                    </ul>
-                    <a href="{{ url_for('display_secretaria') }}" target="_blank" class="view-screen-link">Visualizar Tela da Secretaria</a>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header"><img src="/static/icons/biblioteca_icon.svg" alt="Ícone Biblioteca">Tela da Biblioteca</div>
-                <div class="card-content"><p style="color: #7f8c8d;">Funcionalidades em desenvolvimento.</p></div>
             </div>
         </div>
     </div>

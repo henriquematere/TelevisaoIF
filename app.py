@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 import datetime
 import time
 import sqlite3 
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -18,7 +19,7 @@ UPLOAD_FOLDER = os.path.join(app.static_folder, 'uploads')
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER) 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -40,17 +41,30 @@ def init_db():
         
         cursor.execute('CREATE TABLE IF NOT EXISTS patio_notices (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT NOT NULL)')
         cursor.execute('CREATE TABLE IF NOT EXISTS patio_menu (id INTEGER PRIMARY KEY CHECK (id = 1), text_content TEXT, image_url TEXT)')
-        cursor.execute("INSERT OR IGNORE INTO patio_menu (id, text_content, image_url) VALUES (1, ?, ?)", 
-                       ("Cardápio padrão: Arroz, Feijão e Bife.", "uploads/placeholder_prato.jpg"))
-        cursor.execute('CREATE TABLE IF NOT EXISTS global_announcements (id INTEGER PRIMARY KEY CHECK (id = 1), message TEXT, is_active BOOLEAN DEFAULT 0, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)')
+        cursor.execute("INSERT OR IGNORE INTO patio_menu (id, text_content, image_url) VALUES (1, ?, ?)", ("Cardápio padrão.", "uploads/placeholder_prato.jpg"))
+        cursor.execute('CREATE TABLE IF NOT EXISTS global_announcements (id INTEGER PRIMARY KEY CHECK (id = 1), message TEXT, is_active BOOLEAN DEFAULT 0)')
         cursor.execute("INSERT OR IGNORE INTO global_announcements (id, message, is_active) VALUES (1, '', 0)")
         cursor.execute('CREATE TABLE IF NOT EXISTS devices (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE, screen_type TEXT NOT NULL, location_notes TEXT)')
         cursor.execute("CREATE TABLE IF NOT EXISTS interval_schedule (id INTEGER PRIMARY KEY CHECK (id = 1), start_time TEXT DEFAULT '10:00', end_time TEXT DEFAULT '10:15', is_enabled BOOLEAN DEFAULT 1)")
         cursor.execute("INSERT OR IGNORE INTO interval_schedule (id, start_time, end_time, is_enabled) VALUES (1, '10:00', '10:15', 1)")
         cursor.execute('CREATE TABLE IF NOT EXISTS secretaria_notices (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT NOT NULL, display_order INTEGER DEFAULT 0)')
-
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS scheduled_images (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, image_url TEXT NOT NULL, target_screen_type TEXT NOT NULL,
+                start_date TEXT NOT NULL, end_date TEXT NOT NULL, display_order INTEGER DEFAULT 0
+            )
+        ''')
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS custom_screens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                layout_config_json TEXT
+            )
+        ''')
+        
         db.commit()
-        print("Banco de dados inicializado.")
 
 with app.app_context():
     init_db()
@@ -68,17 +82,15 @@ def allowed_file(filename):
 def get_combined_notices(specific_notices_query):
     db = get_db()
     cursor = db.cursor()
-    
     global_cursor = cursor.execute("SELECT message, is_active FROM global_announcements WHERE id = 1")
     global_announcement = global_cursor.fetchone()
     
     combined_notices = []
     if global_announcement and global_announcement['is_active'] and global_announcement['message']:
-        combined_notices.append(global_announcement['message'])
+        combined_notices.append(f"AVISO GERAL::{global_announcement['message']}")
     
     specific_cursor = cursor.execute(specific_notices_query)
     specific_notices = [row['content'] for row in specific_cursor.fetchall()]
-    
     combined_notices.extend(specific_notices)
     return combined_notices
 
@@ -94,6 +106,17 @@ def get_secretaria_notices():
     notices = get_combined_notices(query)
     return jsonify(notices)
 
+@app.route('/api/scheduled_images/<string:screen_type>', methods=['GET'])
+def get_scheduled_images(screen_type):
+    db = get_db()
+    today = datetime.date.today().strftime('%Y-%m-%d')
+    cursor = db.execute(
+        "SELECT image_url FROM scheduled_images WHERE target_screen_type = ? AND start_date <= ? AND end_date >= ? ORDER BY display_order",
+        (screen_type, today, today)
+    )
+    images = [url_for('static', filename=row['image_url']) for row in cursor.fetchall()]
+    return jsonify(images)
+
 @app.route('/api/patio/menu', methods=['GET']) 
 def get_patio_menu():
     db = get_db()
@@ -104,7 +127,7 @@ def get_patio_menu():
         if data_to_send.get('imagemUrl') and data_to_send['imagemUrl'].startswith('uploads/'):
             data_to_send['imagemUrl'] = url_for('static', filename=data_to_send['imagemUrl'])
         return jsonify(data_to_send)
-    return jsonify({"texto": "Cardápio não disponível.", "imagemUrl": ""}), 404
+    return jsonify({"texto": "Cardápio não disponível."}), 404
 
 @app.route('/api/weather', methods=['GET'])
 def get_weather():
@@ -118,7 +141,6 @@ def get_weather():
         clima_info = { "temperatura": round(data['main']['temp']), "condicao": data['weather'][0]['description'].capitalize() }
         return jsonify(clima_info)
     except Exception as e:
-        print(f"Erro ao buscar clima: {e}")
         return jsonify({"temperatura": "N/A", "condicao": "Erro ao buscar clima"}), 500
 
 @app.route('/api/interval/status', methods=['GET'])
@@ -134,7 +156,6 @@ def get_interval_status():
         end_dt_local = datetime.datetime.strptime(f"{today_str} {schedule['end_time']}", "%Y-%m-%d %H:%M")
     except ValueError:
         return jsonify({"active": False, "message": "Hora inválida"}), 500
-
     is_active_now = start_dt_local <= now_dt < end_dt_local
     if is_active_now:
         start_timestamp_utc = start_dt_local.timestamp()
@@ -201,7 +222,7 @@ def admin_edit_patio_menu():
                     if os.path.exists(old_filepath):
                         try: os.remove(old_filepath)
                         except OSError as e: print(f"Erro ao remover {old_filepath}: {e}")
-                filename = secure_filename(file.filename)
+                filename = f"{int(time.time())}_{secure_filename(file.filename)}"
                 new_filepath_absolute = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 try:
                     file.save(new_filepath_absolute)
@@ -213,25 +234,6 @@ def admin_edit_patio_menu():
     menu_row = db.execute("SELECT text_content, image_url FROM patio_menu WHERE id = 1").fetchone()
     return render_template('admin_edit_patio_menu.html', menu=dict(menu_row))
 
-@app.route('/admin/edit/secretaria/notices', methods=['GET', 'POST'])
-def admin_edit_secretaria_notices():
-    if not session.get('admin_logged_in'): return redirect(url_for('admin_login'))
-    db = get_db()
-    if request.method == 'POST':
-        db.execute("DELETE FROM secretaria_notices")
-        i = 0
-        while True:
-            content = request.form.get(f'notice{i}')
-            if content is None: break
-            if content.strip():
-                db.execute("INSERT INTO secretaria_notices (content, display_order) VALUES (?, ?)", (content.strip(), i))
-            i += 1
-        db.commit()
-        return redirect(url_for('admin_dashboard'))
-    cursor = db.execute("SELECT content FROM secretaria_notices ORDER BY display_order, id")
-    notices = [row['content'] for row in cursor.fetchall()]
-    return render_template('admin_edit_secretaria_notices.html', notices=notices)
-
 @app.route('/admin/global_announcement', methods=['GET', 'POST'])
 def admin_global_announcement():
     if not session.get('admin_logged_in'): return redirect(url_for('admin_login'))
@@ -239,11 +241,54 @@ def admin_global_announcement():
     if request.method == 'POST':
         message = request.form.get('message')
         is_active = 'is_active' in request.form 
-        db.execute("UPDATE global_announcements SET message = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1", (message, is_active))
+        db.execute("UPDATE global_announcements SET message = ?, is_active = ? WHERE id = 1", (message, is_active))
         db.commit()
         return redirect(url_for('admin_global_announcement')) 
     announcement_row = db.execute("SELECT message, is_active FROM global_announcements WHERE id = 1").fetchone()
     return render_template('admin_global_aviso.html', announcement=dict(announcement_row))
+
+@app.route('/admin/images/<string:screen_type>', methods=['GET'])
+def admin_list_images(screen_type):
+    if not session.get('admin_logged_in'): return redirect(url_for('admin_login'))
+    db = get_db()
+    images = db.execute("SELECT * FROM scheduled_images WHERE target_screen_type = ? ORDER BY start_date DESC", (screen_type,)).fetchall()
+    return render_template('admin_list_images.html', images=images, screen_type=screen_type)
+
+@app.route('/admin/images/add/<string:screen_type>', methods=['GET', 'POST'])
+def admin_add_image(screen_type):
+    if not session.get('admin_logged_in'): return redirect(url_for('admin_login'))
+    if request.method == 'POST':
+        file = request.files.get('image_file')
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+        if not all([file, file.filename, start_date, end_date]):
+            return render_template('admin_add_image.html', error="Todos os campos são obrigatórios.", screen_type=screen_type)
+        if allowed_file(file.filename):
+            filename = f"{int(time.time())}_{secure_filename(file.filename)}"
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            db = get_db()
+            db.execute("INSERT INTO scheduled_images (image_url, target_screen_type, start_date, end_date) VALUES (?, ?, ?, ?)",
+                       (f"uploads/{filename}", screen_type, start_date, end_date))
+            db.commit()
+            return redirect(url_for('admin_list_images', screen_type=screen_type))
+    return render_template('admin_add_image.html', screen_type=screen_type)
+
+@app.route('/admin/images/delete/<int:image_id>', methods=['POST'])
+def admin_delete_image(image_id):
+    if not session.get('admin_logged_in'): return redirect(url_for('admin_login'))
+    db = get_db()
+    image_row = db.execute("SELECT image_url, target_screen_type FROM scheduled_images WHERE id = ?", (image_id,)).fetchone()
+    if image_row:
+        screen_type = image_row['target_screen_type']
+        filepath = os.path.join(app.static_folder, image_row['image_url'])
+        if os.path.exists(filepath):
+            try: os.remove(filepath)
+            except OSError as e: print(f"Erro ao remover arquivo físico: {e}")
+        db.execute("DELETE FROM scheduled_images WHERE id = ?", (image_id,))
+        db.commit()
+        return redirect(url_for('admin_list_images', screen_type=screen_type))
+    return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/devices', methods=['GET'])
 def admin_list_devices():
@@ -256,19 +301,23 @@ def admin_list_devices():
 @app.route('/admin/devices/add', methods=['GET', 'POST'])
 def admin_add_device():
     if not session.get('admin_logged_in'): return redirect(url_for('admin_login'))
+    db = get_db()
     if request.method == 'POST':
         name = request.form.get('name')
         screen_type = request.form.get('screen_type')
         location_notes = request.form.get('location_notes')
         if name and screen_type:
-            db = get_db()
             try:
-                db.execute("INSERT INTO devices (name, screen_type, location_notes) VALUES (?, ?, ?)", (name, screen_type, location_notes))
+                db.execute("INSERT INTO devices (name, screen_type, location_notes) VALUES (?, ?, ?)",
+                           (name, screen_type, location_notes))
                 db.commit()
                 return redirect(url_for('admin_list_devices'))
             except sqlite3.IntegrityError:
-                return render_template('admin_add_dispositivo.html', error="Um dispositivo com este nome já existe.")
-    return render_template('admin_add_dispositivo.html')
+                custom_screens = db.execute("SELECT id, name FROM custom_screens ORDER BY name").fetchall()
+                return render_template('admin_add_dispositivo.html', error="Um dispositivo com este nome já existe.", custom_screens=custom_screens)
+    
+    custom_screens = db.execute("SELECT id, name FROM custom_screens ORDER BY name").fetchall()
+    return render_template('admin_add_dispositivo.html', custom_screens=custom_screens)
 
 @app.route('/admin/devices/delete/<int:device_id>', methods=['POST'])
 def admin_delete_device(device_id):
@@ -291,20 +340,90 @@ def admin_edit_interval_schedule():
             datetime.datetime.strptime(end_time, '%H:%M')
         except ValueError:
             schedule = db.execute("SELECT start_time, end_time, is_enabled FROM interval_schedule WHERE id = 1").fetchone()
-            return render_template('admin_edit_interval_schedule.html', schedule=dict(schedule), error="Formato de hora inválido. Use HH:MM.")
+            return render_template('admin_edit_interval_schedule.html', schedule=dict(schedule), error="Formato inválido. Use HH:MM.")
         db.execute("UPDATE interval_schedule SET start_time = ?, end_time = ?, is_enabled = ? WHERE id = 1", (start_time, end_time, is_enabled))
         db.commit()
         return redirect(url_for('admin_dashboard'))
     schedule = db.execute("SELECT start_time, end_time, is_enabled FROM interval_schedule WHERE id = 1").fetchone()
     return render_template('admin_edit_interval_schedule.html', schedule=dict(schedule))
 
-@app.route('/display/patio')
-def display_patio():
-    return render_template('display_patio.html') 
+@app.route('/admin/custom_screens', methods=['GET'])
+def admin_list_custom_screens():
+    if not session.get('admin_logged_in'): return redirect(url_for('admin_login'))
+    db = get_db()
+    screens = db.execute("SELECT id, name FROM custom_screens ORDER BY name").fetchall()
+    return render_template('admin_list_custom_screens.html', screens=screens)
 
-@app.route('/display/secretaria')
-def display_secretaria():
-    return render_template('secretaria_display.html')
+@app.route('/admin/custom_screens/add', methods=['GET', 'POST'])
+def admin_add_custom_screen():
+    if not session.get('admin_logged_in'): return redirect(url_for('admin_login'))
+    if request.method == 'POST':
+        name = request.form.get('name')
+        if name:
+            db = get_db()
+            try:
+                cursor = db.execute("INSERT INTO custom_screens (name, layout_config_json) VALUES (?, ?)", (name, '{}'))
+                db.commit()
+                new_screen_id = cursor.lastrowid
+                return redirect(url_for('admin_edit_custom_screen', screen_id=new_screen_id))
+            except sqlite3.IntegrityError:
+                return render_template('admin_add_custom_screen.html', error="Uma tela com este nome já existe.")
+    return render_template('admin_add_custom_screen.html')
+
+@app.route('/admin/custom_screens/edit/<int:screen_id>', methods=['GET', 'POST'])
+def admin_edit_custom_screen(screen_id):
+    if not session.get('admin_logged_in'): return redirect(url_for('admin_login'))
+    db = get_db()
+    if request.method == 'POST':
+        layout_template = request.form.get('layout_template')
+        config = {'template': layout_template}
+        if layout_template == 'coluna_unica':
+            config['main_content'] = request.form.get('main_content_1')
+        elif layout_template == 'duas_colunas':
+            config['main_content'] = request.form.get('main_content_2')
+            config['sidebar_content'] = request.form.get('sidebar_content_2')
+        layout_config_json = json.dumps(config)
+        db.execute("UPDATE custom_screens SET layout_config_json = ? WHERE id = ?", (layout_config_json, screen_id))
+        db.commit()
+        return redirect(url_for('admin_list_custom_screens'))
+            
+    screen_row = db.execute("SELECT * FROM custom_screens WHERE id = ?", (screen_id,)).fetchone()
+    if not screen_row: return "Tela não encontrada", 404
+    screen = dict(screen_row)
+    try:
+        layout_config = json.loads(screen.get('layout_config_json', '{}'))
+    except (json.JSONDecodeError, TypeError):
+        layout_config = {}
+        
+    return render_template('admin_edit_custom_screen.html', screen=screen, layout_config=layout_config)
+
+@app.route('/admin/custom_screens/delete/<int:screen_id>', methods=['POST'])
+def admin_delete_custom_screen(screen_id):
+    if not session.get('admin_logged_in'): return redirect(url_for('admin_login'))
+    db = get_db()
+    db.execute("DELETE FROM custom_screens WHERE id = ?", (screen_id,))
+    db.commit()
+    return redirect(url_for('admin_list_custom_screens'))
+
+@app.route('/display/<string:screen_type>')
+def display_screen(screen_type):
+    if screen_type == 'patio':
+        return render_template('display_patio.html')
+    elif screen_type == 'secretaria':
+        return render_template('secretaria_display.html')
+    elif screen_type.startswith('custom_'):
+        screen_id = screen_type.split('_')[1]
+        db = get_db()
+        screen = db.execute("SELECT * FROM custom_screens WHERE id = ?", (screen_id,)).fetchone()
+        if not screen:
+            return "Tela personalizada não encontrada", 404
+        try:
+            layout_config = json.loads(screen['layout_config_json'])
+        except (json.JSONDecodeError, TypeError):
+            layout_config = {}
+        return render_template('custom_display.html', screen=screen, layout_config=layout_config)
+    else:
+        return render_template('image_display.html', screen_type=screen_type)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
