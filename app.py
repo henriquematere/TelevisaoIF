@@ -421,7 +421,7 @@ def display_screen(screen_type):
             layout_config = json.loads(screen['layout_config_json'])
         except (json.JSONDecodeError, TypeError):
             layout_config = {}
-        return render_template('custom_display.html', screen=screen, layout_config=layout_config)
+        return render_template('display_custom.html', screen=screen, layout_config=layout_config)
     else:
         return render_template('image_display.html', screen_type=screen_type)
 

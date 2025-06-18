@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela Personalizada</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ifms-green: #009639;
+            --ifms-gray: #666666;
+            --ifms-dark-gray: #333333;
+            --ifms-light-gray: #f4f4f4;
+            --accent-yellow: #facc15;
+        }
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--ifms-dark-gray);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: var(--ifms-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+        .header .time {
+            font-size: 2.5rem;
+            color: var(--accent-yellow);
+            font-weight: bold;
+        }
+        .header .weather {
+            text-align: right;
+        }
+        .layout-duas-colunas {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+        .main, .sidebar {
+            flex: 1;
+            padding: 15px;
+            background-color: var(--ifms-gray);
+            border-radius: 10px;
+        }
+        .main { flex: 2; }
+        .section img { max-width: 100%; border-radius: 10px; }
+        .notice-item { margin-bottom: 10px; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo"><img src="/static/ifms_logo.png" alt="IFMS" height="50"></div>
+        <div class="time" id="currentTime"></div>
+        <div class="weather">
+            <div id="weatherTemp">--</div>
+            <div id="weatherDesc">Clima...</div>
+        </div>
+    </div>
+
+    {% if config.template == 'duas_colunas' %}
+    <div class="layout-duas-colunas">
+        <div class="main">
+            {% if config.main_content in ['slideshow_geral'] %}
+            <div id="slideshow"></div>
+            {% endif %}
+        </div>
+        <div class="sidebar">
+            {% if config.sidebar_content in ['avisos_patio', 'avisos_secretaria'] %}
+            <h2>Avisos</h2>
+            <div id="avisos"></div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('currentTime').textContent = time;
+        }
+        async function fetchWeather() {
+            try {
+                const res = await fetch('/api/weather');
+                const data = await res.json();
+                document.getElementById('weatherTemp').textContent = `${data.temperatura}°C`;
+                document.getElementById('weatherDesc').textContent = data.condicao;
+            } catch {
+                document.getElementById('weatherDesc').textContent = "Falha ao carregar clima.";
+            }
+        }
+
+        async function fetchAvisos(tipo) {
+            try {
+                const res = await fetch(`/api/${tipo}/notices`);
+                const avisos = await res.json();
+                const container = document.getElementById('avisos');
+                container.innerHTML = avisos.map(a => `<div class="notice-item">${a}</div>`).join('');
+            } catch (e) {
+                document.getElementById('avisos').textContent = "Erro ao carregar avisos.";
+            }
+        }
+
+        async function fetchSlideshow(tipo) {
+            try {
+                const res = await fetch(`/api/scheduled_images/${tipo}`);
+                const images = await res.json();
+                const container = document.getElementById('slideshow');
+                if (images.length > 0) {
+                    let html = '';
+                    images.forEach(url => {
+                        html += `<img src="${url}" style="width: 100%; margin-bottom: 10px;">`;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.textContent = "Nenhuma imagem agendada.";
+                }
+            } catch (e) {
+                document.getElementById('slideshow').textContent = "Erro ao carregar imagens.";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTime();
+            fetchWeather();
+            setInterval(updateTime, 10000);
+            setInterval(fetchWeather, 300000);
+
+            const sidebar = "{{ config.sidebar_content|default('') }}";
+            const main = "{{ config.main_content|default('') }}";
+
+            if (sidebar === 'avisos_patio') fetchAvisos('patio');
+            else if (sidebar === 'avisos_secretaria') fetchAvisos('secretaria');
+
+            if (main === 'slideshow_geral') fetchSlideshow('geral');
+        });
+    </script>
+</body>
+</html>

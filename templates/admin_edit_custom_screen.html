@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Editar Tela: {{ screen.name }}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f8f9fa; }
-        .header { background-color: #e67e22; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .header { background-color: #009639; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .header .logo img { height: 50px; margin-right: 20px; }
         .container { padding: 30px; max-width: 1200px; margin: 20px auto; background-color: #fff; border-radius: 8px; }
         .editor-wrapper { display: flex; gap: 30px; }
         .layout-choices { flex-basis: 30%; }
@@ -24,7 +26,11 @@
     </style>
 </head>
 <body>
-    <div class="header"><h1>Editando Layout: {{ screen.name }}</h1><a href="{{ url_for('admin_logout') }}" style="color:white;">Sair</a></div>
+    <div class="header">
+    <div class="logo"><img src="{{ url_for('static', filename='ifms.svg') }}" alt="IFMS" style="height: 68px; margin-right: 20px;"></div>
+        <h1>Editando Layout: {{ screen.name }}</h1>
+        <a href="{{ url_for('admin_logout') }}" style="color:white;">Sair</a>
+    </div>
     <div class="container">
         <form method="POST">
             <div class="editor-wrapper">
@@ -38,19 +44,14 @@
                         <input type="radio" id="layout2" name="layout_template" value="duas_colunas" onchange="showConfig(this.value)" {% if layout_config.template == 'duas_colunas' %}checked{% endif %}>
                         <label for="layout2">Duas Colunas (70/30)</label>
                     </div>
-                     <div class="layout-option">
-                        <input type="radio" id="layout3" name="layout_template" value="patio" onchange="showConfig(this.value)" {% if layout_config.template == 'patio' %}checked{% endif %}>
-                        <label for="layout3">Layout do Pátio</label>
-                    </div>
                 </div>
                 <div class="layout-preview">
                     <h3>2. Configure o Conteúdo</h3>
                     <div id="config-coluna_unica" class="config-zone">
                         <div class="form-group">
-                            <label for="main_content_1">Conteúdo Principal</label>
+                            <label for="main_content_1">Conteúdo</label>
                             <select name="main_content_1">
-                                <option value="slideshow_geral" {% if layout_config.main_content == 'slideshow_geral' %}selected{% endif %}>Slideshow de Imagens (Geral)</option>
-                                <option value="slideshow_secretaria" {% if layout_config.main_content == 'slideshow_secretaria' %}selected{% endif %}>Slideshow de Imagens (Secretaria)</option>
+                                <option value="slideshow_geral" {% if layout_config.main_content == 'slideshow_geral' %}selected{% endif %}>Slideshow de Imagens</option>
                             </select>
                         </div>
                     </div>
@@ -58,19 +59,16 @@
                         <div class="form-group">
                             <label for="main_content_2">Coluna Principal (70%)</label>
                             <select name="main_content_2">
-                                <option value="slideshow_geral" {% if layout_config.main_content == 'slideshow_geral' %}selected{% endif %}>Slideshow de Imagens (Geral)</option>
-                                <option value="slideshow_secretaria" {% if layout_config.main_content == 'slideshow_secretaria' %}selected{% endif %}>Slideshow de Imagens (Secretaria)</option>
+                                <option value="slideshow_geral" {% if layout_config.main_content == 'slideshow_geral' %}selected{% endif %}>Slideshow de Imagens</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="sidebar_content_2">Coluna Lateral (30%)</label>
                             <select name="sidebar_content_2">
-                                 <option value="avisos_patio" {% if layout_config.sidebar_content == 'avisos_patio' %}selected{% endif %}>Avisos do Pátio</option>
+                                <option value="avisos_patio" {% if layout_config.sidebar_content == 'avisos_patio' %}selected{% endif %}>Avisos do Pátio</option>
+                                <option value="avisos_secretaria" {% if layout_config.sidebar_content == 'avisos_secretaria' %}selected{% endif %}>Avisos da Secretaria</option>
                             </select>
                         </div>
-                    </div>
-                    <div id="config-patio" class="config-zone">
-                        <p>Este layout é fixo e contém os blocos de Avisos, Cardápio e Timer do Intervalo.</p>
                     </div>
                 </div>
             </div>
@@ -80,17 +78,16 @@
         <a href="{{ url_for('admin_list_custom_screens') }}" class="btn-back">Voltar</a>
     </div>
     <script>
-        // CORREÇÃO: Passa os dados para um data-attribute no HTML para o JS ler de forma limpa.
         const layoutConfigElement = document.createElement('div');
         layoutConfigElement.setAttribute('data-config', '{{ layout_config|tojson|safe }}');
         const layoutConfig = JSON.parse(layoutConfigElement.getAttribute('data-config'));
-        
+
         function showConfig(layout) {
             document.querySelectorAll('.config-zone').forEach(el => el.style.display = 'none');
             const activeZone = document.getElementById(`config-${layout}`);
             if(activeZone) activeZone.style.display = 'block';
         }
-        
+
         document.addEventListener('DOMContentLoaded', () => {
             const checkedRadio = document.querySelector('input[name="layout_template"]:checked');
             if (checkedRadio) {
@@ -100,12 +97,3 @@
     </script>
 </body>
 </html>
-```
-
-**O que mudou (a correção):**
-Em vez de colocar o código Jinja2 diretamente em uma variável JavaScript, a nova abordagem faz o seguinte:
-1.  Cria um elemento HTML temporário em JavaScript.
-2.  Usa `setAttribute` para colocar os dados do Flask (convertidos para JSON e marcados como `safe`) em um atributo `data-config` desse elemento.
-3.  O JavaScript então lê esse atributo de forma segura e usa `JSON.parse` para convertê-lo em um objeto JavaScript.
-
-Essa técnica é mais robusta, evita os erros de sintaxe no seu editor de código e é a maneira recomendada de passar dados complexos do backend para o frontend em cenários como es
