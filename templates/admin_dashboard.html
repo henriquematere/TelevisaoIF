@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - Painel IFMS</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard Admin - Painel IFMS</title>
+
+<style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
         .header { background-color: #007a2e; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .header .title-container { display: flex; align-items: center; gap: 15px; }
@@ -22,63 +23,72 @@
         .card-header.custom-header { background-color: #e67e22; }
         .card-header.global-header { background-color: #8e44ad; }
         .card-header.system-header { background-color: #34495e; }
+        .card-header.user-header { background-color: #2c3e50; }
         .card-content { padding: 20px; }
         .nav-list { list-style-type: none; padding: 0; margin: 0; }
         .nav-list li { margin-bottom: 8px; }
         .nav-list a { display: block; padding: 10px 15px; text-decoration: none; color: #2c3e50; background-color: #ecf0f1; border-radius: 4px; }
     </style>
-</head>
+<link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/></head>
 <body>
-    <div class="header">
-        <div class="title-container">
-            <img src="{{ url_for('static', filename='ifms.svg') }}" alt="Logo IFMS">
-            <h1>Painel Administrativo Central</h1>
-        </div>
-        <div class="user-actions"><a href="{{ url_for('admin_logout') }}">Sair (Logout)</a></div>
-    </div>
-    <div class="container">
-        <h2 class="section-title">Gerenciamento de Conteúdo</h2>
-        <div class="grid-container">
-            <div class="card">
-                <div class="card-header global-header">Conteúdo Global</div>
-                <div class="card-content">
-                    <ul class="nav-list">
-                        <li><a href="{{ url_for('admin_global_announcement') }}">Aviso Geral</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">Telas de Conteúdo Fixo</div>
-                <div class="card-content">
-                     <ul class="nav-list">
-                        <li><a href="{{ url_for('admin_edit_patio_notices') }}">Avisos do Pátio</a></li>
-                        <li><a href="{{ url_for('admin_edit_patio_menu') }}">Cardápio do Pátio</a></li>
-                        <li><a href="{{ url_for('admin_edit_interval_schedule') }}">Horário do Intervalo</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header custom-header">Telas Personalizáveis</div>
-                 <div class="card-content">
-                    <p style="font-size: 0.9em; color: #555; margin-bottom: 15px;">Crie e edite telas com layouts e conteúdos flexíveis.</p>
-                    <ul class="nav-list">
-                        <li><a href="{{ url_for('admin_list_custom_screens') }}">Gerenciar Telas Personalizáveis</a></li>
-                        <li><a href="{{ url_for('admin_list_images', screen_type='geral') }}">Banco de Imagens Agendadas</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <h2 class="section-title" style="margin-top: 40px;">Configurações do Sistema</h2>
-        <div class="grid-container">
-            <div class="card">
-                <div class="card-header system-header">Dispositivos</div>
-                <div class="card-content">
-                    <ul class="nav-list">
-                        <li><a href="{{ url_for('admin_list_devices') }}">Gerenciar Dispositivos (TVs)</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="header" style="background-color: #009639; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;">
+<div class="title-container">
+<img alt="Logo IFMS" src="{{ url_for('static', filename='ifms.svg') }}"/>
+<h1>Painel Administrativo Central</h1>
+</div>
+<div class="user-actions"><a href="{{ url_for('admin_logout') }}" onmouseout="this.style.color='white'" onmouseover="this.style.color='#bdc3c7'" style="color:white; text-decoration:none; transition: color 0.2s;">Sair (Logout)</a></div>
+</div>
+<div class="container">
+<h2 class="section-title">Gerenciamento de Conteúdo</h2>
+<div class="grid-container">
+<div class="card">
+<div class="card-header global-header">Conteúdo Global</div>
+<div class="card-content">
+<ul class="nav-list">
+<li><a href="{{ url_for('admin_global_announcement') }}">Aviso Geral</a></li>
+</ul>
+</div>
+</div>
+<div class="card">
+<div class="card-header">Telas de Conteúdo Fixo</div>
+<div class="card-content">
+<ul class="nav-list">
+<li><a href="{{ url_for('admin_edit_patio_notices') }}">Avisos do Pátio</a></li>
+<li><a href="{{ url_for('admin_edit_patio_menu') }}">Cardápio do Pátio</a></li>
+<li><a href="{{ url_for('admin_edit_interval_schedule') }}">Horário do Intervalo</a></li>
+</ul>
+</div>
+</div>
+<div class="card">
+<div class="card-header custom-header">Telas Personalizáveis</div>
+<div class="card-content">
+<p style="font-size: 0.9em; color: #555; margin-bottom: 15px;">Crie e edite telas com layouts e conteúdos flexíveis.</p>
+<ul class="nav-list">
+<li><a href="{{ url_for('admin_list_custom_screens') }}">Gerenciar Telas Personalizáveis</a></li>
+<li><a href="{{ url_for('admin_list_images', screen_type='geral') }}">Banco de Imagens Agendadas</a></li>
+</ul>
+</div>
+</div>
+</div>
+<h2 class="section-title" style="margin-top: 40px;">Configurações do Sistema</h2>
+<div class="grid-container">
+<div class="card">
+<div class="card-header system-header">Dispositivos</div>
+<div class="card-content">
+<ul class="nav-list">
+<li><a href="{{ url_for('admin_list_devices') }}">Gerenciar Dispositivos (TVs)</a></li>
+</ul>
+</div>
+</div>
+<div class="card">
+<div class="card-header user-header">Usuários</div>
+<div class="card-content">
+<ul class="nav-list">
+<li><a href="{{ url_for('admin_users') }}">Gerenciar Usuários</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
 </body>
 </html>

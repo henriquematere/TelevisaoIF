@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Cardápio do Pátio - Admin</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Editar Cardápio do Pátio - Admin</title>
+
+<style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
         .header { background-color: #007a2e; color: white; padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; }
         .header a { color: white; text-decoration: none; font-weight: 600; }
@@ -23,38 +24,37 @@
         .btn-back:hover { background-color: #5a6268; }
         .current-image-info { font-size: 0.9em; color: #555; margin-bottom: 5px;}
     </style>
-</head>
+<link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/></head>
 <body>
-    <div class="header">
-        <div class="logo"><img src="{{ url_for('static', filename='ifms.svg') }}" alt="IFMS" style="height: 68px; margin-right: 20px;"></div>
-        <h1>Editar Cardápio - Tela do Pátio</h1>
-        <a href="{{ url_for('admin_logout') }}">Sair</a>
-    </div>
-    <div class="container">
-        <h2>Modifique o cardápio do dia:</h2>
-        <form method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="menu_text">Texto do Cardápio:</label>
-                <textarea id="menu_text" name="menu_text" required>{{ menu.texto }}</textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="menu_image_file">Nova Imagem do Prato (opcional):</label>
-                <input type="file" id="menu_image_file" name="menu_image_file" accept="image/png, image/jpeg, image/gif">
-                <small>Se nenhuma nova imagem for selecionada, a imagem atual será mantida.</small>
-            </div>
+<div class="header" style="background-color: #009639; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;">
+<div class="logo"><img alt="IFMS" src="{{ url_for('static', filename='ifms.svg') }}" style="height: 68px; margin-right: 20px;"/></div>
+<h1>Editar Cardápio - Tela do Pátio</h1>
+<a href="{{ url_for('admin_logout') }}" onmouseout="this.style.color='white'" onmouseover="this.style.color='#bdc3c7'" style="color:white; text-decoration:none; transition: color 0.2s;">Sair</a>
+</div>
+<div class="container">
+<h2>Modifique o cardápio do dia:</h2>
+<form enctype="multipart/form-data" method="POST">
+<div class="form-group">
+<label for="menu_text">Texto do Cardápio:</label>
+<textarea id="menu_text" name="menu_text" required="">{{ menu.texto }}</textarea>
+</div>
+<div class="form-group">
+<label for="menu_image_file">Nova Imagem do Prato (opcional):</label>
+<input accept="image/png, image/jpeg, image/gif" id="menu_image_file" name="menu_image_file" type="file"/>
+<small>Se nenhuma nova imagem for selecionada, a imagem atual será mantida.</small>
+</div>
 
             {% if menu.imagemUrl %}
             <div class="form-group">
-                <p class="current-image-info">Imagem Atual:</p>
-                <img src="{{ url_for('static', filename=menu.imagemUrl) if menu.imagemUrl and menu.imagemUrl.startswith('uploads/') else menu.imagemUrl }}" alt="Preview do prato atual" class="preview">
-                <small>Caminho salvo: {{menu.imagemUrl}}</small>
-            </div>
+<p class="current-image-info">Imagem Atual:</p>
+<img alt="Preview do prato atual" class="preview" src="{{ url_for('static', filename=menu.imagemUrl) if menu.imagemUrl and menu.imagemUrl.startswith('uploads/') else menu.imagemUrl }}"/>
+<small>Caminho salvo: {{menu.imagemUrl}}</small>
+</div>
             {% endif %}
             
-            <button type="submit" class="btn-save">Salvar Cardápio</button>
-        </form>
-        <a href="{{ url_for('admin_dashboard') }}" class="btn-back">Voltar ao Painel</a>
-    </div>
+            <button class="btn-save" type="submit">Salvar Cardápio</button>
+</form>
+<a class="btn-back" href="{{ url_for('admin_dashboard') }}">Voltar ao Painel</a>
+</div>
 </body>
 </html>

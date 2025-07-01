@@ -8,6 +8,7 @@ import datetime
 import time
 import sqlite3 
 import json
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 CORS(app)
@@ -63,7 +64,20 @@ def init_db():
                 layout_config_json TEXT
             )
         ''')
-        
+
+        cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        is_admin BOOLEAN DEFAULT 0
+            )
+        ''')
+        cursor.execute("SELECT COUNT(*) FROM users WHERE username = 'admin'")
+        if cursor.fetchone()[0] == 0:
+            hash_pwd = generate_password_hash("admin")
+            cursor.execute("INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 1)", ('admin', hash_pwd))
+
         db.commit()
 
 with app.app_context():
@@ -87,7 +101,8 @@ def get_combined_notices(specific_notices_query):
     
     combined_notices = []
     if global_announcement and global_announcement['is_active'] and global_announcement['message']:
-        combined_notices.append(f"AVISO GERAL::{global_announcement['message']}")
+        combined_notices.append(global_announcement['message'])
+
     
     specific_cursor = cursor.execute(specific_notices_query)
     specific_notices = [row['content'] for row in specific_cursor.fetchall()]
@@ -169,16 +184,40 @@ def get_interval_status():
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
-        if request.form.get('username') == "admin" and request.form.get('password') == "admin":
+        username = request.form.get('username')
+        password = request.form.get('password')
+        db = get_db()
+        user = db.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+        if user and check_password_hash(user['password_hash'], password):
             session['admin_logged_in'] = True
+            session['admin_username'] = user['username']
+            session['admin_is_admin'] = bool(user['is_admin'])
             return redirect(url_for('admin_dashboard'))
         return render_template('admin_login.html', error="Usuário ou senha inválidos")
     return render_template('admin_login.html')
 
 @app.route('/admin/logout')
 def admin_logout():
-    session.pop('admin_logged_in', None)
+    session.clear()
     return redirect(url_for('admin_login'))
+
+@app.route('/admin/users', methods=['GET', 'POST'])
+def admin_users():
+    if not session.get('admin_logged_in') or not session.get('admin_is_admin'):
+        return redirect(url_for('admin_login'))
+    db = get_db()
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username and password:
+            try:
+                db.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)",
+                           (username, generate_password_hash(password)))
+                db.commit()
+            except sqlite3.IntegrityError:
+                return "Usuário já existe", 400
+    users = db.execute("SELECT id, username, is_admin FROM users ORDER BY username").fetchall()
+    return render_template('admin_users.html', users=users)
 
 @app.route('/admin')
 @app.route('/admin/dashboard')

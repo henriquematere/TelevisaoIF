@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Avisos do Pátio - Admin</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Editar Avisos do Pátio - Admin</title>
+
+<style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
         .header { background-color: #009639; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }        .header h1 { margin: 0; font-size: 24px; }
         .header a { color: white; text-decoration: none; font-weight: 600; }
@@ -22,31 +23,31 @@
         .notice-field-container { margin-bottom: 10px; padding: 10px; border: 1px dashed #eee; border-radius: 4px;}
         .instructions { font-size: 0.9em; color: #6c757d; margin-bottom: 20px; }
     </style>
-</head>
+<link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/></head>
 <body>
-    <div class="header">
-        <h1>Editar Avisos - Tela do Pátio</h1>
-        <a href="{{ url_for('admin_logout') }}">Sair</a>
-    </div>
-    <div class="container">
-        <h2>Modifique os avisos abaixo:</h2>
-        <p class="instructions">Para remover um aviso, simplesmente apague seu texto e salve. Para adicionar um novo, preencha o último campo "Novo aviso".</p>
-        <form method="POST">
-            <div id="notices-container">
+<div class="header" style="background-color: #009639; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;"><img alt="IFMS" src="{{ url_for('static', filename='logo_branco.png') }}" style="height: 40px; margin-right: 15px;"/>
+<h1>Editar Avisos - Tela do Pátio</h1>
+<a href="{{ url_for('admin_logout') }}" onmouseout="this.style.color='white'" onmouseover="this.style.color='#bdc3c7'" style="color:white; text-decoration:none; transition: color 0.2s;">Sair</a>
+</div>
+<div class="container">
+<h2>Modifique os avisos abaixo:</h2>
+<p class="instructions">Para remover um aviso, simplesmente apague seu texto e salve. Para adicionar um novo, preencha o último campo "Novo aviso".</p>
+<form method="POST">
+<div id="notices-container">
                 {% for notice in notices %}
                 <div class="form-group notice-field-container">
-                    <label for="notice{{ loop.index0 }}">Aviso {{ loop.index }}:</label>
-                    <textarea id="notice{{ loop.index0 }}" name="notice{{ loop.index0 }}" rows="3">{{ notice }}</textarea>
-                </div>
+<label for="notice{{ loop.index0 }}">Aviso {{ loop.index }}:</label>
+<textarea id="notice{{ loop.index0 }}" name="notice{{ loop.index0 }}" rows="3">{{ notice }}</textarea>
+</div>
                 {% endfor %}
                 <div class="form-group notice-field-container">
-                    <label for="notice{{ notices|length }}">Novo aviso (opcional):</label>
-                    <textarea id="notice{{ notices|length }}" name="notice{{ notices|length }}" rows="3" placeholder="Digite o novo aviso aqui"></textarea>
-                </div>
-            </div>
-            <button type="submit" class="btn-save">Salvar Avisos</button>
-        </form>
-        <a href="{{ url_for('admin_dashboard') }}" class="btn-back">Voltar ao Painel</a>
-    </div>
+<label for="notice{{ notices|length }}">Novo aviso (opcional):</label>
+<textarea id="notice{{ notices|length }}" name="notice{{ notices|length }}" placeholder="Digite o novo aviso aqui" rows="3"></textarea>
+</div>
+</div>
+<button class="btn-save" type="submit">Salvar Avisos</button>
+</form>
+<a class="btn-back" href="{{ url_for('admin_dashboard') }}">Voltar ao Painel</a>
+</div>
 </body>
 </html>

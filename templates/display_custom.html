@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tela Personalizada</title>
+    <link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -21,16 +22,20 @@
             padding: 0;
         }
         .header {
-            background-color: var(--ifms-gray);
+            background-color: var(--ifms-green);
+            color: white;
+            padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
+        }
+        .header .logo img {
+            height: 50px;
         }
         .header .time {
             font-size: 2.5rem;
-            color: var(--accent-yellow);
             font-weight: bold;
+            color: var(--accent-yellow);
         }
         .header .weather {
             text-align: right;
@@ -53,7 +58,9 @@
 </head>
 <body>
     <div class="header">
-        <div class="logo"><img src="/static/ifms_logo.png" alt="IFMS" height="50"></div>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='ifms.svg') }}" alt="IFMS">
+        </div>
         <div class="time" id="currentTime"></div>
         <div class="weather">
             <div id="weatherTemp">--</div>
@@ -70,7 +77,6 @@
         </div>
         <div class="sidebar">
             {% if config.sidebar_content in ['avisos_patio', 'avisos_secretaria'] %}
-            <h2>Avisos</h2>
             <div id="avisos"></div>
             {% endif %}
         </div>
@@ -83,6 +89,7 @@
             const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             document.getElementById('currentTime').textContent = time;
         }
+
         async function fetchWeather() {
             try {
                 const res = await fetch('/api/weather');
@@ -111,11 +118,7 @@
                 const images = await res.json();
                 const container = document.getElementById('slideshow');
                 if (images.length > 0) {
-                    let html = '';
-                    images.forEach(url => {
-                        html += `<img src="${url}" style="width: 100%; margin-bottom: 10px;">`;
-                    });
-                    container.innerHTML = html;
+                    container.innerHTML = images.map(url => `<img src="${url}" style="width: 100%; margin-bottom: 10px;">`).join('');
                 } else {
                     container.textContent = "Nenhuma imagem agendada.";
                 }

@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configurar Horário do Intervalo - Admin</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Configurar Horário do Intervalo - Admin</title>
+
+<style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
         .header { background-color: #007a2e; color: white; padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; }
         .header h1 { margin: 0; font-size: 24px; }
@@ -20,34 +21,35 @@
         .btn-back { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 16px; }
         .error { color: red; margin-bottom: 10px; }
     </style>
-</head>
+<link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/></head>
 <body>
-    <div class="header">
-        <div class="logo"><img src="{{ url_for('static', filename='ifms.svg') }}" alt="IFMS" style="height: 68px; margin-right: 20px;"></div>
-        <h1>Configurar Horário do Intervalo Automático</h1>
-        <a href="{{ url_for('admin_logout') }}">Sair</a>
-    </div>
-    <div class="container">
-        <h2>Defina o período do intervalo:</h2>
+<div class="header" style="background-color: #009639; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;">
+<div class="logo"><img alt="IFMS" src="{{ url_for('static', filename='ifms.svg') }}" style="height: 68px; margin-right: 20px;"/></div>
+<h1>Configurar Horário do Intervalo Automático</h1>
+<a href="{{ url_for('admin_logout') }}" onmouseout="this.style.color='white'" onmouseover="this.style.color='#bdc3c7'" style="color:white; text-decoration:none; transition: color 0.2s;">Sair</a>
+</div>
+<div class="container">
+<h2>Defina o período do intervalo:</h2>
         {% if error %}
             <p class="error">{{ error }}</p>
         {% endif %}
         <form method="POST">
-            <div class="form-group">
-                <label for="start_time">Horário de Início (HH:MM):</label>
-                <input type="time" id="start_time" name="start_time" value="{{ schedule.start_time if schedule else '10:00' }}" required>
-            </div>
-            <div class="form-group">
-                <label for="end_time">Horário de Fim (HH:MM):</label>
-                <input type="time" id="end_time" name="end_time" value="{{ schedule.end_time if schedule else '10:15' }}" required>
-            </div>
-            <div class="form-group">
-                <input type="checkbox" id="is_enabled" name="is_enabled" {% if schedule and schedule.is_enabled %}checked{% endif %}>
-                <label for="is_enabled" style="display: inline; font-weight: normal;">Habilitar intervalo automático</label>
-            </div>
-            <button type="submit" class="btn-save">Salvar Configuração</button>
-        </form>
-        <a href="{{ url_for('admin_dashboard') }}" class="btn-back">Voltar ao Painel</a>
-    </div>
+<div class="form-group">
+<label for="start_time">Horário de Início (HH:MM):</label>
+<input id="start_time" name="start_time" required="" type="time" value="{{ schedule.start_time if schedule else '10:00' }}"/>
+</div>
+<div class="form-group">
+<label for="end_time">Horário de Fim (HH:MM):</label>
+<input id="end_time" name="end_time" required="" type="time" value="{{ schedule.end_time if schedule else '10:15' }}"/>
+</div>
+<div class="form-group">
+<input type="checkbox" id="is_enabled" name="is_enabled"
+{% if schedule and schedule.is_enabled %}checked{% endif %}>
+<label for="is_enabled" style="display: inline; font-weight: normal;">Habilitar intervalo automático</label>
+</div>
+<button class="btn-save" type="submit">Salvar Configuração</button>
+</form>
+<a class="btn-back" href="{{ url_for('admin_dashboard') }}">Voltar ao Painel</a>
+</div>
 </body>
 </html>
