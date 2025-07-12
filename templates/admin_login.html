@@ -1,52 +1,31 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Login - Painel IFMS</title>
+<link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/>
 <style>
-        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
-        :root { --ifms-green: #009639; --ifms-gray: #34495e; --background: #ecf0f1; }
-        body { font-family: 'Open Sans', sans-serif; margin: 0; background-color: var(--background); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .login-wrapper { display: flex; width: 100%; max-width: 900px; min-height: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; }
-        .login-left { background: var(--ifms-green); color: white; flex-basis: 40%; padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .login-left img { max-width: 150px; margin-bottom: 20px; }
-        .login-left h2 { font-size: 1.8rem; margin: 0; }
-        .login-left p { font-size: 1rem; opacity: 0.8; }
-        .login-right { background: white; flex-basis: 60%; padding: 50px; display: flex; flex-direction: column; justify-content: center; }
-        .login-right h1 { color: var(--ifms-gray); margin-bottom: 30px; font-size: 2rem; }
-        .form-group { margin-bottom: 25px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #555; font-weight: 600; }
-        .form-group input { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
-        .form-group input:focus { border-color: var(--ifms-green); box-shadow: 0 0 0 2px rgba(0, 150, 57, 0.2); outline: none;}
-        .btn-submit { padding: 12px 20px; background-color: var(--ifms-green); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-submit:hover { background-color: #007a2e; }
-        .error-message { color: #e74c3c; background-color: #fdd; border: 1px solid #f5c6cb; padding: 10px; border-radius: 5px; margin-bottom: 20px; text-align: center; }
-    </style>
-<link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/></head>
+body { background: #e6f5ea; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+.box { max-width:340px; margin:60px auto 0 auto; background:#fff; padding:36px 30px 30px 30px; border-radius: 12px; box-shadow:0 2px 20px #0002;}
+h2 { color: #009639; margin-bottom:24px; text-align: center; }
+input[type=text],input[type=password] { width:100%; padding:12px 10px; margin-bottom:15px; border-radius:5px; border:1px solid #bbb; font-size:1em; box-sizing: border-box;}
+button { background: #009639; color:white; border:none; border-radius:7px; padding:12px 0; width:100%; font-size:1.12em; font-weight:600; margin-top:7px;}
+.error { color:#d32f2f; margin-bottom:14px; text-align:center;}
+img { height:64px; display:block; margin: 0 auto 16px auto;}
+</style>
+</head>
 <body>
-<div class="login-wrapper">
-<div class="login-left">
-<img alt="Logo IFMS Branco" onerror="this.onerror=null;this.style.display='none'" src="/static/ifms_logo.png"/>
-<h2>Sistema de Gerenciamento</h2>
-<p>Painéis de TV - IFMS</p>
-</div>
-<div class="login-right">
-<h1>Acesso Restrito</h1>
-            {% if error %}<p class="error-message">{{ error }}</p>{% endif %}
-            <form method="POST">
-<div class="form-group">
-<label for="username">Usuário</label>
-<input id="username" name="username" required="" type="text" value="admin"/>
-</div>
-<div class="form-group">
-<label for="password">Senha</label>
-<input id="password" name="password" required="" type="password" value="admin"/>
-</div>
-<button class="btn-submit" type="submit">Entrar</button>
-</form>
-</div>
+<div class="box">
+    <img src="{{ url_for('static', filename='ifms.svg') }}" alt="Logo IFMS">
+    <h2>Login do Administrador</h2>
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+    <form method="POST">
+        <input type="text" name="username" placeholder="Usuário" required autofocus>
+        <input type="password" name="password" placeholder="Senha" required>
+        <button type="submit">Entrar</button>
+    </form>
 </div>
 </body>
 </html>

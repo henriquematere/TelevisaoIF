@@ -1,60 +1,51 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Editar Cardápio do Pátio - Admin</title>
-
-<style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
-        .header { background-color: #007a2e; color: white; padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; }
-        .header a { color: white; text-decoration: none; font-weight: 600; }
-        .container { padding: 30px; max-width: 900px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.075); }
-        .container h2 { margin-top: 0; color: #495057; font-size: 22px; border-bottom: 1px solid #dee2e6; padding-bottom: 10px; margin-bottom: 20px;}
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
-        .form-group input[type="text"], .form-group input[type="file"], .form-group textarea { width: calc(100% - 24px); padding: 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
-        .form-group textarea { min-height: 100px; resize: vertical; }
-        .form-group input:focus, .form-group textarea:focus { border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); outline: none; }
-        .form-group img.preview { max-width: 250px; height: auto; display:block; margin-top:10px; border-radius: 4px; border: 1px solid #ddd; }
-        .btn-save { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 600; }
-        .btn-save:hover { background-color: #218838; }
-        .btn-back { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 16px; }
-        .btn-back:hover { background-color: #5a6268; }
-        .current-image-info { font-size: 0.9em; color: #555; margin-bottom: 5px;}
-    </style>
-<link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/></head>
+  <meta charset="utf-8"/>
+  <title>Editar Cardápio do Pátio</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}"/>
+  <meta http-equiv="refresh" content="60">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; }
+    .header { background: #009639; color: white; padding: 20px 40px; display: flex; align-items: center; }
+    .header img { height: 50px; margin-right: 20px; }
+    .container { max-width: 550px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px #0001; padding: 30px 32px;}
+    h2 { color: #009639; margin-bottom: 22px;}
+    label { font-weight: bold; display:block; margin-top: 22px;}
+    input[type="text"], textarea { width:100%; padding:10px; margin-top:6px; border:1px solid #ccc; border-radius:6px; font-size: 1.05rem;}
+    .image-preview { margin:18px 0; }
+    img { max-width: 200px; max-height: 120px; border-radius: 7px; border:1.5px solid #ddd; display:block;}
+    .btn { background:#009639; color:#fff; border:none; border-radius:6px; padding:10px 26px; font-weight:600; margin-top:24px; cursor:pointer;}
+    .btn:hover { background: #007a2e;}
+    .back { color:#009639; text-decoration:underline; margin-top:28px; display:inline-block;}
+  </style>
+</head>
 <body>
-<div class="header" style="background-color: #009639; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;">
-<div class="logo"><img alt="IFMS" src="{{ url_for('static', filename='ifms.svg') }}" style="height: 68px; margin-right: 20px;"/></div>
-<h1>Editar Cardápio - Tela do Pátio</h1>
-<a href="{{ url_for('admin_logout') }}" onmouseout="this.style.color='white'" onmouseover="this.style.color='#bdc3c7'" style="color:white; text-decoration:none; transition: color 0.2s;">Sair</a>
-</div>
-<div class="container">
-<h2>Modifique o cardápio do dia:</h2>
-<form enctype="multipart/form-data" method="POST">
-<div class="form-group">
-<label for="menu_text">Texto do Cardápio:</label>
-<textarea id="menu_text" name="menu_text" required="">{{ menu.texto }}</textarea>
-</div>
-<div class="form-group">
-<label for="menu_image_file">Nova Imagem do Prato (opcional):</label>
-<input accept="image/png, image/jpeg, image/gif" id="menu_image_file" name="menu_image_file" type="file"/>
-<small>Se nenhuma nova imagem for selecionada, a imagem atual será mantida.</small>
-</div>
-
-            {% if menu.imagemUrl %}
-            <div class="form-group">
-<p class="current-image-info">Imagem Atual:</p>
-<img alt="Preview do prato atual" class="preview" src="{{ url_for('static', filename=menu.imagemUrl) if menu.imagemUrl and menu.imagemUrl.startswith('uploads/') else menu.imagemUrl }}"/>
-<small>Caminho salvo: {{menu.imagemUrl}}</small>
-</div>
-            {% endif %}
-            
-            <button class="btn-save" type="submit">Salvar Cardápio</button>
-</form>
-<a class="btn-back" href="{{ url_for('admin_dashboard') }}">Voltar ao Painel</a>
-</div>
+  <div class="header">
+    <img src="{{ url_for('static', filename='ifms.svg') }}" alt="Logo IFMS"/>
+    <h1>Editar Cardápio do Pátio</h1>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn" style="margin-left:auto;">Voltar ao Dashboard</a>
+  </div>
+  <div class="container">
+    {% if error %}
+      <div style="background:#fde2e1;color:#d32f2f;border:1px solid #d32f2f;padding:10px 16px;border-radius:5px;margin-bottom:16px;">
+        {{ error }}
+      </div>
+    {% endif %}
+    <form method="POST" enctype="multipart/form-data">
+      <label for="text_content">Descrição do Cardápio:</label>
+      <textarea id="text_content" name="text_content" rows="4" required>{{ menu.text_content if menu else "" }}</textarea>
+      <label for="image_file">Imagem (opcional):</label>
+      <input type="file" id="image_file" name="image_file" accept="image/*"/>
+      {% if menu and menu.image_url %}
+        <div class="image-preview">
+          <strong>Imagem atual:</strong>
+          <img src="{{ url_for('static', filename=menu.image_url) }}" alt="Cardápio do Pátio"/>
+        </div>
+      {% endif %}
+      <button class="btn" type="submit">Salvar Cardápio</button>
+    </form>
+    <a class="back" href="{{ url_for('admin_dashboard') }}">&larr; Voltar ao Painel</a>
+  </div>
 </body>
 </html>

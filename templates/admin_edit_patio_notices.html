@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <title>Gerenciar Avisos do Pátio - Painel IFMS</title>
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+  <style>
+    body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; color: #222;}
+    .container { max-width: 520px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 16px #00963922; padding: 28px 34px;}
+    h1 { color: #009639; margin-top: 0;}
+    .notices-list { margin-bottom: 22px;}
+    .notice-item { background: #e6f5ea; padding: 10px 12px; border-radius: 7px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .notice-item span { flex: 1;}
+    .delete-btn { background: #d32f2f; color: #fff; border: none; border-radius: 5px; padding: 6px 14px; cursor: pointer; font-weight: 600;}
+    .delete-btn:hover { background: #a70d0d;}
+    
+    /* Regra do formulário de adição atualizada */
+    form.add-form { 
+        margin-top: 24px; /* Espaçamento que você pediu */
+        text-align: center; /* Centraliza o conteúdo (input e botão) */
+    }
+
+    input[type=text] { width: 70%; /* Ajustado para dar espaço ao botão */ padding: 8px 10px; border-radius: 5px; border: 1px solid #aaa; margin-right: 8px; box-sizing: border-box;}
+    .btn { background: #009639; color: #fff; border: none; border-radius: 5px; padding: 8px 16px; font-weight: 600; cursor: pointer;}
+    .btn:hover { background: #007a2e; }
+    .back { text-decoration: none; color: #009639; margin-bottom: 14px; display: inline-block;}
+    .back:hover { text-decoration: underline;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="{{ url_for('admin_dashboard') }}">&larr; Voltar ao Dashboard</a>
+    <h1>Gerenciar Avisos do Pátio</h1>
+
+    <div class="notices-list">
+      {% for aviso in avisos %}
+        <div class="notice-item">
+          <span>{{ aviso.content }}</span>
+          <form method="POST" style="margin:0;">
+            <input type="hidden" name="delete_id" value="{{ aviso.id }}">
+            <button type="submit" class="delete-btn" onclick="return confirm('Apagar este aviso?');">Excluir</button>
+          </form>
+        </div>
+      {% else %}
+        <div style="color:#888;">Nenhum aviso cadastrado.</div>
+      {% endfor %}
+    </div>
+
+    <!-- Adicionada uma classe para estilização específica -->
+    <form method="POST" class="add-form">
+      <input type="text" name="text_content" placeholder="Novo aviso..." maxlength="200" required>
+      <button class="btn" type="submit">Adicionar Aviso</button>
+    </form>
+  </div>
+</body>
+</html>

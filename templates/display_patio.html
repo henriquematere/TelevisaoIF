@@ -1,257 +1,189 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Painel do Pátio - IFMS</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
-
-<style>
-        :root {
-            --ifms-green: #009639;
-            --ifms-red: #ED1C24;
-            --ifms-gray: #666666;
-            --ifms-light-gray: #f0f0f0;
-            --ifms-dark-gray: #333333;
-            --ifms-background-screen: #2c2c2c;
-            --ifms-section-bg: #3a3a3a;
-            --ifms-yellow-accent: #FACC15; 
-        }
-        body { font-family: 'Open Sans', sans-serif; background-color: var(--ifms-dark-gray); color: var(--ifms-light-gray); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow: hidden; }
-        .tv-screen { width: 100%; max-width: 1280px; height: 720px; background-color: var(--ifms-background-screen); border-radius: 16px; box-shadow: 0 0 30px rgba(0,0,0,0.5); padding: 24px; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; background-color: var(--ifms-gray); color: var(--ifms-light-gray); padding: 10px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: 700; }
-        .top-bar img { max-height: 120px; }
-        .logo-container, .date-container, .weather-container { flex: 1; display: flex; align-items: center; }
-        .time-container { flex: 1.2; text-align: center; }
-        .logo-container { justify-content: flex-start; }
-        .weather-container { justify-content: flex-end; }
-        .logo-container img { max-height: 50px; width: auto; }
-        #dateDisplay { font-size: 2.2rem; text-align: center; width: 100%;}
-        #timeDisplay { font-size: 3.5rem; color: var(--ifms-yellow-accent); }
-        .weather { font-size: 1.6rem; text-align: right; width: 100%; }
-        .weather-main { display: flex; align-items: center; justify-content: flex-end; font-size: 2.2rem; }
-        .weather-icon { width: 40px; height: 40px; margin-left: 10px; }
-        #weatherDescription { font-size: 0.9rem; color: #bdc3c7; text-transform: capitalize; }
-        #dayOfWeekDisplay { font-size: 1.8rem; margin-bottom: 3px; }
-        .content-area { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; overflow: hidden; }
-        .notices-section, .menu-section { background-color: var(--ifms-section-bg); padding: 18px; border-radius: 10px; }
-        #noticesList { list-style-type: none; padding: 0; max-height: 180px; overflow-y: auto;}
-        .notice-item { font-size: 1.35rem; padding: 10px 5px; border-bottom: 1px solid #4f4f4f; line-height: 1.6; }
-        .notice-item:last-child { border-bottom: none; }
-        .global-notice-item { background-color: var(--ifms-green); color: white; font-weight: bold; padding: 12px 10px !important; border-radius: 6px; margin-bottom: 10px; }
-        .menu-content { display: flex; gap: 18px; align-items: center; }
-        .menu-text { flex-grow: 1; font-size: 1.5rem; line-height: 1.6; }
-        .menu-image img { width: 200px; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid var(--ifms-gray); }
-        .interval-timer-section { background-color: var(--ifms-section-bg); padding: 18px; border-radius: 10px; text-align: center; margin-top: auto; }
-        .interval-timer-section h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; color: var(--ifms-light-gray); }
-        .progress-bar-container { width: 100%; background-color: #555; border-radius: 8px; height: 20px; margin-bottom: 8px; overflow: hidden; }
-        .progress-bar { width: 0%; height: 100%; background-color: var(--ifms-green); border-radius: 8px; transition: width 0.1s linear, background-color 0.3s ease; }
-        .progress-bar.ended { background-color: var(--ifms-gray); width: 100% !important; }
-        .interval-time { font-size: 2.3rem; font-weight: 700; color: var(--ifms-yellow-accent); }
-    </style>
-<link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/></head>
+  <meta charset="utf-8" />
+  <title>Pátio - IFMS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/>
+  <style>
+    body { background: #191e24; margin: 0; color: #fff; font-family: "Segoe UI", Tahoma, Verdana, sans-serif;}
+    .top-bar { background: #009639; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 24px 38px;}
+    .logo-container img { height: 48px; }
+    .date-container, .weather-container { font-size: 1.5em; min-width: 120px;}
+    .time-container { flex: 1; text-align: center; font-size: 3.5em; color: #facc15; font-weight: 900;}
+    .main-content { display: grid; grid-template-columns: 2fr 1fr; gap: 36px; max-width: 1300px; margin: 36px auto;}
+    @media (max-width: 1000px) { .main-content { grid-template-columns: 1fr; } }
+    .card { background: #22262c; border-radius: 13px; box-shadow: 0 2px 13px #0006; margin-bottom: 30px; }
+    .card-title { font-size: 1.35em; background: #003b1d; color: #fff; border-radius: 13px 13px 0 0; padding: 15px; font-weight: 700;}
+    .card-content { padding: 24px; }
+    .notice { background: #30343c; padding: 13px 20px; margin-bottom: 8px; border-radius: 8px; font-size: 1.18em; }
+    .img-lanche { width: 100%; max-width: 300px; border-radius: 18px; box-shadow: 0 2px 15px #0003;}
+    .feriados { font-size: 1.13em; margin-top: 10px;}
+    /* Estilo para o timer do intervalo */
+    .interval-timer-section {
+      background: #262f27;
+      border-radius: 13px;
+      box-shadow: 0 2px 13px #007a2e33;
+      margin-bottom: 30px;
+      padding: 32px 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .interval-label { font-size: 1.3em; margin-bottom: 12px; font-weight: bold; }
+    .interval-time { font-size: 2.8em; color: #facc15; font-weight: 900; margin-bottom: 10px; }
+    .progress-bar-container { width: 100%; background: #444; border-radius: 8px; height: 18px; margin-bottom: 8px; overflow: hidden; }
+    .progress-bar { height: 100%; background: #009639; transition: width 0.6s; }
+  </style>
+  <meta http-equiv="refresh" content="60">
+</head>
 <body>
-<div class="tv-screen">
-<div class="top-bar">
-<img alt="Logo IFMS" src="{{ url_for('static', filename='ifms.svg') }}"/>
-<div class="date-container"><span id="dateDisplay"></span></div>
-<div class="time-container"><span id="timeDisplay"></span></div>
-<div class="weather-container">
-<div class="weather">
-<div id="dayOfWeekDisplay"></div>
-<div class="weather-main"><span id="temperatureDisplay"></span><svg class="weather-icon" fill="none" id="weatherIconSvg" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M47.8077 25.547C47.8077 25.1077 47.7505 24.6875 47.6471 24.2865C47.6185 24.173 47.5899 24.0594 47.5613 23.9459C47.5041 23.7188 47.4469 23.4917 47.3611 23.2742C47.3325 23.1892 47.3039 23.1042 47.2609 23.0288C47.1893 22.8498 47.0891 22.6804 46.9889 22.5109C46.9317 22.4259 46.8745 22.3409 46.8029 22.2654C46.6904 22.0759 46.5635 21.8969 46.4222 21.7274C46.3506 21.6424 46.279 21.5574 46.1932 21.4819C46.0358 21.2548 45.864 21.0468 45.6778 20.8484C45.582 20.7444 45.4862 20.6404 45.376 20.5459C45.1612 20.3284 44.932 20.1299 44.6884 19.9409C44.582 19.8464 44.4756 19.7519 44.3548 19.667C44.0826 19.4495 43.796 19.2509 43.495 19.0719C43.3886 19.0147 43.2822 18.9574 43.1614 18.9097C42.8142 18.7107 42.4526 18.5412 42.0766 18.3908C41.9808 18.343 41.885 18.3049 41.7892 18.2667C41.369 18.0877 40.9344 17.9372 40.4854 17.8152C40.3746 17.7866 40.2638 17.758 40.153 17.7294C39.6468 17.5885 39.1262 17.4761 38.5912 17.3921C38.4804 17.3635 38.3696 17.3349 38.2444 17.3158C37.6632 17.2125 37.0676 17.1472 36.4576 17.1005C36.3468 17.0909 36.2216 17.0814 36.1008 17.0718C35.4288 17.0065 34.7424 16.9789 34.0416 16.9789C30.0395 16.9789 26.5801 19.1725 24.6416 22.6176C22.0288 21.9551 19.1168 22.7379 17.3268 24.7269C15.4648 26.792 15.1032 29.723 16.5596 32.013C14.9496 32.6182 13.6236 33.7877 12.8264 35.2715C11.3272 38.118 12.186 41.6112 14.7032 43.5216C14.0836 44.165 13.5876 44.8939 13.2364 45.6899C12.6084 47.0719 12.594 48.6749 13.1992 50.1014C13.8192 51.5852 15.0024 52.6878 16.4692 53.108C17.0124 53.2652 17.57 53.3502 18.1276 53.3502C19.904 53.3502 21.5668 52.5002 22.6228 51.1087C23.5828 52.5287 25.1456 53.4827 26.9076 53.5867C26.9932 53.5962 27.0788 53.5962 27.1644 53.5962C29.4724 53.5962 31.494 52.2892 32.4252 50.2807C33.126 50.7475 33.9124 51.0904 34.756 51.2992C35.1032 51.3842 35.4504 51.4404 35.812 51.4689C35.9108 51.4785 36.0096 51.4881 36.1084 51.4881H36.1228C36.1944 51.4881 36.266 51.4881 36.3376 51.4785C38.6456 51.2897 40.6672 49.9827 41.5984 47.9742C42.0376 47.0719 42.2368 46.0924 42.2368 45.0937C42.2368 44.7059 42.2082 44.3182 42.151 43.9399C44.5968 43.6255 46.604 42.1894 47.5613 40.037C48.2904 38.3425 48.2904 36.3812 47.5613 34.6867C49.3941 33.7204 50.6061 31.9024 50.6061 29.8372C50.6061 27.9625 49.6053 26.287 47.8077 25.547Z" fill="#FBBF24"></path><path d="M38.5912 17.3921C39.1262 17.4761 39.6468 17.5885 40.153 17.7294C40.2638 17.758 40.3746 17.7866 40.4854 17.8152C40.9344 17.9372 41.369 18.0877 41.7892 18.2667C41.885 18.3049 41.9808 18.343 42.0766 18.3908C42.4526 18.5412 42.8142 18.7107 43.1614 18.9097C43.2822 18.9574 43.3886 19.0147 43.495 19.0719C43.796 19.2509 44.0826 19.4495 44.3548 19.667C44.4756 19.7519 44.582 19.8464 44.6884 19.9409C44.932 20.1299 45.1612 20.3284 45.376 20.5459C45.4862 20.6404 45.582 20.7444 45.6778 20.8484C45.864 21.0468 46.0358 21.2548 46.1932 21.4819C46.279 21.5574 46.3506 21.6424 46.4222 21.7274C46.5635 21.8969 46.6904 22.0759 46.8029 22.2654C46.8745 22.3409 46.9317 22.4259 46.9889 22.5109C47.0891 22.6804 47.1893 22.8498 47.2609 23.0288C47.3039 23.1042 47.3325 23.1892 47.3611 23.2742C47.4469 23.4917 47.5041 23.7188 47.5613 23.9459C47.5899 24.0594 47.6185 24.173 47.6471 24.2865C47.7505 24.6875 47.8077 25.1077 47.8077 25.547C46.0005 26.287 44.9997 27.9625 44.9997 29.8372C44.9997 31.9024 43.7877 33.7204 41.9549 34.6867C41.2257 36.3812 41.2257 38.3425 41.9549 40.037C40.9977 42.1894 38.9904 43.6255 36.5445 43.9399C36.5925 44.3182 36.6212 44.7059 36.6212 45.0937C36.6212 46.0924 36.4219 47.0719 35.9828 47.9742C35.0516 49.9827 33.0299 51.2897 30.7219 51.4785C30.6504 51.4881 30.5787 51.4881 30.5072 51.4881H30.4928C30.394 51.4881 30.2952 51.4785 30.1964 51.4689C29.8347 51.4404 29.4876 51.3842 29.1404 51.2992C28.2967 51.0904 27.5103 50.7475 26.8092 50.2807C25.878 52.2892 23.8564 53.5962 21.5484 53.5962C21.4628 53.5962 21.3772 53.5962 21.2916 53.5867C19.5296 53.4827 17.9668 52.5287 17.0068 51.1087C15.9508 52.5002 14.288 53.3502 12.5116 53.3502C11.954 53.3502 11.3964 53.2652 10.8532 53.108C9.38636 52.6878 8.20316 51.5852 7.58316 50.1014C6.97796 48.6749 6.99236 47.0719 7.62036 45.6899C7.97156 44.8939 8.46756 44.165 9.08716 43.5216C6.57004 41.6112 5.71116 38.118 7.21036 35.2715C8.00756 33.7877 9.33356 32.6182 10.9436 32.013C9.48716 29.723 9.84876 26.792 11.7108 24.7269C13.5008 22.7379 16.4127 21.9551 19.0256 22.6176C20.964 19.1725 24.4235 16.9789 28.4256 16.9789C29.1264 16.9789 29.8127 17.0065 30.4847 17.0718C30.6055 17.0814 30.7307 17.0909 30.8416 17.1005C31.4515 17.1472 32.0472 17.2125 32.6283 17.3158C32.7535 17.3349 32.8643 17.3635 32.9752 17.3921L38.5912 17.3921Z" fill="#FFFFFF"></path></svg>
-</div>
-<div class="text-sm" id="weatherDescription"></div>
-</div>
-</div>
-</div>
-<div class="content-area">
-<div class="notices-section"><ul id="noticesList"></ul></div>
-<div class="menu-section">
-<div class="menu-content">
-<div class="menu-text" id="menuText"></div>
-<div class="menu-image"><img alt="" id="menuImage" src=""/></div>
-</div>
-</div>
-</div>
-<div class="interval-timer-section">
-<h2>TEMPO TOTAL DE INTERVALO</h2>
-<div class="progress-bar-container"><div class="progress-bar" id="intervalProgressBar"></div></div>
-<div class="interval-time" id="intervalTimeDisplay"></div>
-</div>
-</div>
-<script>
-        const BACKEND_URL = 'http://127.0.0.1:5000';
-        let patioNoticesData = [];
-        let globalAnnouncementData = { is_active: false, message: "" };
-        const noticesListElement = document.getElementById('noticesList');
-        function updateDateTime() {
-            const now = new Date();
-            const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
-            const optionsTime = { hour: '2-digit', minute: '2-digit' };
-            const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-            document.getElementById('dateDisplay').textContent = now.toLocaleDateString('pt-BR', optionsDate);
-            document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('pt-BR', optionsTime);
-            document.getElementById('dayOfWeekDisplay').textContent = daysOfWeek[now.getDay()];
+  <div class="top-bar">
+    <div class="logo-container">
+      <img src="{{ url_for('static', filename='ifms.svg') }}" />
+    </div>
+    <div class="date-container"><span id="dateDisplay"></span></div>
+    <div class="time-container" id="clock">--:--</div>
+    <div class="weather-container" id="weatherArea">
+      <img id="weatherIcon" style="display:none" width="38" height="38">
+      <span id="temperatureDisplay">--°C</span>
+      <span id="weatherDescription" style="display:block; font-size:1rem"></span>
+    </div>
+  </div>
+  <div class="main-content">
+    <div>
+      <div class="card">
+        <div class="card-title">Avisos do Pátio</div>
+        <div class="card-content">
+          {% for aviso in patio_notices %}
+          <div class="notice">{{ aviso.content }}</div>
+          {% else %}
+          <div class="notice" style="color: #aaa">Nenhum aviso no momento.</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div id="intervalOrFeriado"></div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">Cardápio do Dia</div>
+        <div class="card-content">
+          {% if cardapio_texto %}
+          <div style="margin-bottom: 12px">{{ cardapio_texto }}</div>
+          {% else %}
+          <div style="color: #aaa">Cardápio não disponível.</div>
+          {% endif %}
+          {% if cardapio_img %}
+          <img src="{{ url_for('static', filename=cardapio_img) }}" class="img-lanche" alt="Imagem do cardápio">
+          {% else %}
+          <div style="color:#aaa;">Sem imagem para o cardápio.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function updateClock() {
+      var now = new Date();
+      var h = now.getHours().toString().padStart(2, "0");
+      var m = now.getMinutes().toString().padStart(2, "0");
+      document.getElementById("clock").textContent = h + ":" + m;
+      document.getElementById("dateDisplay").textContent = now.toLocaleDateString("pt-BR");
+    }
+    setInterval(updateClock, 1000); updateClock();
+
+    // ==== API de Clima ====
+    async function fetchWeather() {
+      try {
+        const resp = await fetch("/api/weather");
+        if (!resp.ok) throw new Error("Clima: " + resp.status);
+        const data = await resp.json();
+        document.getElementById(
+          "temperatureDisplay"
+        ).textContent = `${data.temperatura}°C`;
+        document.getElementById("weatherDescription").textContent =
+          data.condicao;
+        // Usando o ícone do OpenWeatherMap (se vier depois)
+        const iconEl = document.getElementById("weatherIcon");
+        if (data.icone) {
+          iconEl.src = data.icone;
+          iconEl.style.display = "inline-block";
+        } else {
+          iconEl.style.display = "none";
         }
-        async function fetchWeather() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/weather`);
-                if (!response.ok) throw new Error(`Erro HTTP no Clima: ${response.status}`);
-                const data = await response.json();
-                document.getElementById('temperatureDisplay').textContent = `${data.temperatura}°C`;
-                document.getElementById('weatherDescription').textContent = data.condicao;
-            } catch (error) { console.error('FALHA: Erro ao buscar clima do backend:', error); }
+      } catch (e) {
+        document.getElementById("weatherDescription").textContent =
+          "Clima indisponível";
+        document.getElementById("weatherIcon").style.display = "none";
+      }
+    }
+    fetchWeather();
+    setInterval(fetchWeather, 10 * 60 * 1000);
+
+    // ==== Timer Intervalo OU Feriados ====
+    async function updateIntervalOrFeriado() {
+      const el = document.getElementById("intervalOrFeriado");
+      try {
+        const resp = await fetch("/api/interval/status");
+        const data = await resp.json();
+        if (data.active) {
+          // Mostra o TIMER
+          el.innerHTML = `
+              <div class="interval-timer-section">
+                  <div class="interval-label">INTERVALO</div>
+                  <div class="interval-time" id="intervalTime">${formatTime(
+                    data.remaining
+                  )}</div>
+                  <div class="progress-bar-container">
+                      <div class="progress-bar" id="intervalBar" style="width:0%"></div>
+                  </div>
+                  <div style="margin-top:8px; color:#ccc;">Termina às ${
+                    data.end_time
+                  }</div>
+              </div>
+          `;
+          startIntervalCountdown(data.remaining, data.duration);
+        } else {
+          // Mostra os FERIADOS/DATAS ACADÊMICAS (renderizados pelo Flask)
+          el.innerHTML = `
+              <div class="card">
+                  <div class="card-title">Próximos Feriados</div>
+                  <div class="card-content feriados">
+                    {% for feriado in feriados %}
+                      <div>{{ feriado.data }} — {{ feriado.nome }}</div>
+                    {% else %}
+                      <div style="color:#aaa;">Nenhum feriado registrado.</div>
+                    {% endfor %}
+                  </div>
+              </div>
+          `;
         }
-        function renderAllNotices() {
-            noticesListElement.innerHTML = '';
-            const allNotices = [];
-            if (globalAnnouncementData.is_active && globalAnnouncementData.message) {
-                allNotices.push({text: globalAnnouncementData.message, isGlobal: true});
-            }
-            patioNoticesData.forEach(noticeText => {
-                allNotices.push({text: noticeText, isGlobal: false});
-            });
-            if (allNotices.length === 0) {
-                 noticesListElement.innerHTML = '<li class="notice-item">Nenhum aviso no momento.</li>';
-            } else {
-                allNotices.forEach(notice => {
-                    const listItem = document.createElement('li');
-                    listItem.className = notice.isGlobal ? 'notice-item global-notice-item' : 'notice-item';
-                    listItem.textContent = notice.isGlobal ? notice.text.replace("AVISO GERAL ", "") : notice.text;
-                    noticesListElement.appendChild(listItem);
-                });
-            }
-        }
-        async function fetchPatioNotices() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/patio/notices`);
-                if (!response.ok) throw new Error(`Erro HTTP Avisos Pátio: ${response.status}`);
-                const combinedNotices = await response.json();
-                globalAnnouncementData = { is_active: false, message: "" };
-                patioNoticesData = [];
-                if (combinedNotices.length > 0 && combinedNotices[0].startsWith("AVISO GERAL:")) {
-                    globalAnnouncementData = { is_active: true, message: combinedNotices[0] };
-                    patioNoticesData = combinedNotices.slice(1);
-                } else {
-                    patioNoticesData = combinedNotices;
-                }
-                renderAllNotices();
-            } catch (error) {
-                console.error('FALHA: Erro ao buscar avisos do pátio:', error);
-                patioNoticesData = [];
-                renderAllNotices();
-            }
-        }
-        async function fetchPatioMenu() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/patio/menu`);
-                if (!response.ok) throw new Error(`Erro HTTP Cardápio Pátio: ${response.status}`);
-                const menuData = await response.json();
-                document.getElementById('menuText').textContent = menuData.texto;
-                document.getElementById('menuImage').src = menuData.imagemUrl;
-                document.getElementById('menuImage').alt = `Imagem de ${menuData.texto.substring(0,30)}`;
-            } catch (error) { console.error('FALHA: Erro ao buscar cardápio do pátio:', error); }
-        }
-        let localIntervalTimerId;
-        let currentIntervalEffectiveStartUTC = null;
-        const intervalTimeDisplay = document.getElementById('intervalTimeDisplay');
-        const intervalProgressBar = document.getElementById('intervalProgressBar');
-        const progressBarContainer = document.querySelector('.progress-bar-container');
-        function formatTime(totalSeconds) {
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
-            return `${String(minutes).padStart(2, '0')}m${String(seconds).padStart(2, '0')}s`;
-        }
-        function setTimerDisplay(message, progressWidth = '0%', isEnded = false) {
-            intervalTimeDisplay.textContent = message;
-            intervalProgressBar.style.width = progressWidth;
-            if (isEnded) {
-                intervalProgressBar.classList.add('ended');
-                progressBarContainer.style.backgroundColor = '#555';
-            } else {
-                intervalProgressBar.classList.remove('ended');
-                intervalProgressBar.style.backgroundColor = (progressWidth === '0%') ? '' : 'var(--ifms-green)';
-                progressBarContainer.style.backgroundColor = (progressWidth === '0%' && message !== "Desabilitado") ? 'var(--ifms-red)' : '#555';
-            }
-        }
-        function stopLocalIntervalTimer(statusMessage = "00m00s") {
-            if (localIntervalTimerId) { clearInterval(localIntervalTimerId); localIntervalTimerId = null; }
-            if (statusMessage === "Intervalo Concluído") {
-                setTimerDisplay(statusMessage, '100%', true);
-            } else if (statusMessage === "Desabilitado") {
-                setTimerDisplay(statusMessage, '0%', true);
-            } else {
-                setTimerDisplay(statusMessage, '0%', false);
-            }
-            currentIntervalEffectiveStartUTC = null;
-        }
-        function startLocalIntervalTimer(remainingSecondsParam, totalDurationSecondsParam) {
-            stopLocalIntervalTimer();
-            intervalProgressBar.classList.remove('ended');
-            progressBarContainer.style.backgroundColor = 'var(--ifms-red)';
-            let timeRemaining = Math.max(0, Math.floor(remainingSecondsParam));
-            const totalDuration = Math.max(1, Math.floor(totalDurationSecondsParam));
-            function updateDisplay() {
-                if (timeRemaining <= 0) {
-                    stopLocalIntervalTimer("Intervalo Concluído");
-                    return;
-                }
-                intervalTimeDisplay.textContent = formatTime(timeRemaining);
-                const progressPercentage = ((totalDuration - timeRemaining) / totalDuration) * 100;
-                intervalProgressBar.style.width = `${progressPercentage}%`;
-                intervalProgressBar.style.backgroundColor = 'var(--ifms-green)';
-                timeRemaining--;
-            }
-            updateDisplay();
-            localIntervalTimerId = setInterval(updateDisplay, 1000);
-        }
-        async function fetchIntervalStatusAndUpdate() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/interval/status`);
-                if (!response.ok) { console.error(`Erro HTTP status intervalo: ${response.status}`); return; }
-                const data = await response.json();
-                if (data.active) {
-                    if (!localIntervalTimerId || currentIntervalEffectiveStartUTC !== data.start_timestamp_utc) {
-                        currentIntervalEffectiveStartUTC = data.start_timestamp_utc;
-                        const nowUTC = Date.now() / 1000;
-                        const elapsedSeconds = nowUTC - data.start_timestamp_utc;
-                        const remainingSeconds = data.duration_seconds - elapsedSeconds;
-                        if (remainingSeconds > 0) {
-                            startLocalIntervalTimer(remainingSeconds, data.duration_seconds);
-                        } else {
-                            stopLocalIntervalTimer("Intervalo Concluído");
-                        }
-                    }
-                } else {
-                    if (localIntervalTimerId) {
-                        stopLocalIntervalTimer(data.message === "Desabilitado" ? "Desabilitado" : "Intervalo Concluído");
-                    } else {
-                        if (data.message === "Desabilitado") {
-                            setTimerDisplay("Desabilitado", '0%', true);
-                        } else if (data.message === "Fora do horário") {
-                             setTimerDisplay("00m00s", '0%', false);
-                        } else if (data.message) {
-                            setTimerDisplay(data.message, data.message === "Intervalo Concluído" ? '100%' : '0%', data.message === "Intervalo Concluído");
-                        }
-                    }
-                }
-            } catch (error) { console.error('Falha ao buscar status do intervalo:', error); }
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-            updateDateTime();
-            fetchWeather();
-            fetchPatioMenu();
-            fetchIntervalStatusAndUpdate();
-            fetchPatioNotices();
-            setInterval(updateDateTime, 1000);
-            setInterval(fetchWeather, 10 * 60 * 1000);
-            setInterval(fetchPatioNotices, 60 * 1000);
-            setInterval(fetchPatioMenu, 5 * 60 * 1000);
-            setInterval(fetchIntervalStatusAndUpdate, 5000);
-        });
-    </script>
+      } catch (e) {
+        el.innerHTML = `<div style="color:#d32f2f; font-weight:bold; text-align:center;">Erro ao buscar informações de intervalo.</div>`;
+      }
+    }
+    function formatTime(segundos) {
+      let m = Math.floor(segundos / 60),
+        s = segundos % 60;
+      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+    let intervalTimer = null;
+    function startIntervalCountdown(segundos, total) {
+      clearInterval(intervalTimer);
+      const timeEl = document.getElementById("intervalTime");
+      const barEl = document.getElementById("intervalBar");
+      let restante = segundos;
+      function tick() {
+        if (restante < 0) return;
+        timeEl.textContent = formatTime(restante);
+        barEl.style.width = `${(100 * (total - restante)) / total}%`;
+        restante--;
+      }
+      tick();
+      intervalTimer = setInterval(tick, 1000);
+    }
+    updateIntervalOrFeriado();
+    setInterval(updateIntervalOrFeriado, 5000);
+  </script>
 </body>
 </html>

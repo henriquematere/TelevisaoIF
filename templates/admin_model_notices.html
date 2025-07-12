@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"/>
-<title>Gerenciar Usuários - Admin</title>
+<title>Avisos do Modelo - Admin</title>
 <link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/>
 <meta http-equiv="refresh" content="60">
 <style>
@@ -17,62 +17,43 @@ th { background:#e6f5ea;}
 .card { background:#fafafa; border-radius:7px; box-shadow: 0 1px 3px #0001; padding: 18px; margin-bottom:28px;}
 .btn { background: #009639; color: white; border:none; border-radius:4px; padding:7px 14px; text-decoration:none; font-weight: 600;}
 .btn-delete { background: #d32f2f;}
-.btn-password { background: #ffc107; color: #222;}
 </style>
 </head>
 <body>
 <div class="header">
     <img src="{{ url_for('static', filename='ifms.svg') }}" alt="Logo IFMS">
-    <h1 style="margin-left:18px;">Gerenciar Usuários</h1>
+    <h1 style="margin-left:18px;">Avisos de {{ model.name }}</h1>
     <a href="{{ url_for('admin_dashboard') }}" class="btn" style="margin-left:auto;">Voltar ao Dashboard</a>
 </div>
 <div class="container">
     <div class="card">
-        <h2>Adicionar Novo Usuário</h2>
-        {% if success_message %}
-            <div style="background: #dafbe1; color: #1a7f37; border: 1px solid #1a7f37; padding: 10px 16px; border-radius: 5px; margin-bottom: 16px;">
-                {{ success_message }}
-            </div>
-        {% endif %}
-        {% if error_message %}
-            <div style="background: #fde2e1; color: #d32f2f; border: 1px solid #d32f2f; padding: 10px 16px; border-radius: 5px; margin-bottom: 16px;">
-                {{ error_message }}
-            </div>
-        {% endif %}
+        <h2>Adicionar Aviso</h2>
+        {% if error %}<div style="color:#d32f2f; margin-bottom:10px;">{{ error }}</div>{% endif %}
         <form method="POST">
-            <input type="text" name="username" placeholder="Nome de usuário" required style="width:160px; padding:8px;">
-            <input type="password" name="password" placeholder="Senha" required style="width:160px; padding:8px;">
-            <button type="submit" class="btn">Cadastrar</button>
+            <input type="text" name="content" placeholder="Digite o aviso" style="width:70%; padding:8px;" required>
+            <button type="submit" class="btn">Adicionar</button>
         </form>
     </div>
-    <h2>Usuários Cadastrados</h2>
+    <h2>Avisos Cadastrados</h2>
     <table class="table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Usuário</th>
-                <th>Administrador?</th>
+                <th>Aviso</th>
                 <th>Ações</th>
             </tr>
         </thead>
         <tbody>
-        {% for user in users %}
+        {% for aviso in notices %}
             <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ 'Sim' if user.is_admin else 'Não' }}</td>
+                <td>{{ aviso.content }}</td>
                 <td>
-                  {% if user.username != 'admin' %}
-                    <form method="POST" action="{{ url_for('admin_delete_user', user_id=user.id) }}" style="display:inline;">
+                    <form method="POST" action="{{ url_for('admin_delete_model_notice', model_id=model.id, notice_id=aviso.id) }}" style="display:inline;" onsubmit="return confirm('Excluir aviso?');">
                         <button type="submit" class="btn btn-delete">Excluir</button>
                     </form>
-                  {% else %}
-                    <span style="color:#aaa;">—</span>
-                  {% endif %}
                 </td>
             </tr>
         {% else %}
-            <tr><td colspan="4" style="text-align:center; color:#888;">Nenhum usuário cadastrado.</td></tr>
+            <tr><td colspan="2" style="text-align:center; color:#888;">Nenhum aviso cadastrado.</td></tr>
         {% endfor %}
         </tbody>
     </table>

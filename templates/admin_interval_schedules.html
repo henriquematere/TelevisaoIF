@@ -1,0 +1,87 @@
+<!-- admin_interval_schedules.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <title>Horários de Intervalo</title>
+    <link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; margin: 0; }
+        .container { max-width: 650px; margin: 36px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #0002; padding: 36px 22px 32px; }
+        h1 { color: #009639; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 24px; background: #fafbfc;}
+        th, td { padding: 11px 8px; }
+        th { background: #e6f5ea; font-size: 1em;}
+        tr:nth-child(even) { background: #f7f7f7; }
+        .actions { text-align: right; }
+        .btn { background: #009639; color: #fff; border: none; border-radius: 5px; padding: 8px 18px; text-decoration: none; cursor:pointer; transition: background .2s;}
+        .btn:hover { background: #007a2e; }
+        .btn-delete { background:#d32f2f;}
+        .btn-delete:hover { background:#a10b0b;}
+        .form-inline { display: flex; gap: 14px; align-items: flex-end; margin-top: 0; flex-wrap: wrap; margin-bottom: 12px;}
+        input, label { font-size: 1em; }
+        input[type="text"], input[type="time"] { padding:7px; border-radius:5px; border:1px solid #ccc;}
+        label { margin-bottom: 2px; }
+        .status-dot { display: inline-block; width: 13px; height: 13px; border-radius: 50%; margin-right: 5px; vertical-align: middle;}
+        .status-on { background: #13b82a;}
+        .status-off { background: #bbb;}
+        .back-link { display: block; text-align: center; margin-top: 26px;}
+        @media (max-width: 600px) {
+            .container { padding: 13px 2vw; }
+            .form-inline { flex-direction: column; align-items: stretch;}
+            table, th, td { font-size: 0.97em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Horários de Intervalo</h1>
+        <form class="form-inline" method="POST" autocomplete="off">
+            <div>
+                <label>Nome:</label>
+                <input type="text" name="name" placeholder="(ex: Intervalo Manhã)" required>
+            </div>
+            <div>
+                <label>Início:</label>
+                <input type="time" name="start_time" required>
+            </div>
+            <div>
+                <label>Fim:</label>
+                <input type="time" name="end_time" required>
+            </div>
+            <div>
+                <label><input type="checkbox" name="is_enabled" checked> Habilitar</label>
+            </div>
+            <button class="btn" type="submit">Adicionar</button>
+        </form>
+
+        <table>
+            <tr>
+                <th>Nome</th>
+                <th>Início</th>
+                <th>Fim</th>
+                <th>Status</th>
+                <th class="actions">Ações</th>
+            </tr>
+            {% for i in schedules %}
+            <tr>
+                <td>{{ i.name }}</td>
+                <td>{{ i.start_time }}</td>
+                <td>{{ i.end_time }}</td>
+                <td>
+                    <span class="status-dot {% if i.is_enabled %}status-on{% else %}status-off{% endif %}"></span>
+                    {{ 'Ativo' if i.is_enabled else 'Inativo' }}
+                </td>
+                <td class="actions">
+                    <form style="display:inline;" method="POST" action="{{ url_for('admin_delete_interval', schedule_id=i.id) }}" onsubmit="return confirm('Excluir este horário de intervalo?')">
+                        <button class="btn btn-delete" type="submit">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <a class="back-link btn" href="{{ url_for('admin_dashboard') }}">Voltar ao Dashboard</a>
+    </div>
+</body>
+</html>

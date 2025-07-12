@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<title>{{ model.name }} - IFMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/>
+<style>
+body {
+  background: #181c20; margin:0; font-family:'Segoe UI',Tahoma,Verdana,sans-serif; color:#fff;
+}
+.wrapper {
+  min-height: 100vh; width:100vw; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+}
+.header-tv {
+  width: 100%; background: #009639; color: white; box-sizing:border-box;
+  display: flex; flex-direction: row; align-items: stretch; justify-content: space-between;
+  padding: 0; min-height: 200px;
+}
+.header-block { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; min-width:240px;}
+.header-left { align-items:flex-start; padding-left:36px; }
+.header-center { align-items:center; justify-content:center;}
+.header-right { align-items:flex-end; padding-right:36px;}
+.logo-ifms { height: 54px; margin-top:26px;}
+.time-now {
+  font-size: 7vw; font-weight: 900; letter-spacing:2px; text-shadow:0 0 12px #000a;
+  line-height: 1; text-align:center; margin-top:36px; margin-bottom:0;
+}
+.date-now {
+  font-size: 2vw; font-weight: 600; margin: 16px 0 0 0; letter-spacing:1px; text-align:center;
+}
+.weather {
+  margin: 34px 0 0 0; display: flex; align-items: center; gap: 18px;
+  font-size: 2vw; font-weight: 700; line-height: 1.1;
+}
+.weather-icon { height: 80px; width: 80px; vertical-align: middle; }
+@media (max-width: 900px) {
+  .header-block, .header-left, .header-center, .header-right { min-width:100px; padding:0; }
+  .logo-ifms { height: 30px;}
+  .time-now { font-size: 14vw; }
+  .date-now { font-size: 4vw;}
+  .weather { font-size: 4vw;}
+  .weather-icon { height:48px; width:48px;}
+  .header-tv { flex-direction:column; min-height:unset;}
+}
+.section-title {
+  font-size: 2em; color: #fff; margin: 32px 0 14px 0; font-weight: 800; text-shadow: 0 1px 9px #0006;
+  text-align:center;
+}
+.notices {
+  width: 100%; display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.notice-item {
+  background: #23272d; color: #fff; font-size: 1.4em; font-weight: 700; padding: 18px 30px;
+  border-radius: 10px; width: 90%; max-width: 1100px; box-shadow: 0 2px 10px #0003;
+}
+.img-slideshow {
+  display: flex; flex-wrap: wrap; gap: 34px; justify-content: center; margin: 34px 0 10px 0;
+}
+.img-slideshow img {
+  border-radius: 16px; max-width: 380px; max-height: 260px; box-shadow: 0 2px 14px #0005;
+}
+@media (max-width: 700px) {
+  .notice-item { font-size: 1em; padding:10px; width:98%;}
+  .img-slideshow img { max-width: 90vw;}
+}
+</style>
+<meta http-equiv="refresh" content="60">
+</head>
+<body>
+<div class="wrapper">
+  <!-- Header institucional: esquerda (logo), centro (hora), direita (data e clima) -->
+  <div class="header-tv">
+    <div class="header-block header-left">
+      <img src="{{ url_for('static', filename='ifms.svg') }}" alt="Logo IFMS" class="logo-ifms"/>
+    </div>
+    <div class="header-block header-center">
+      <div class="time-now" id="clock">--:--</div>
+    </div>
+    <div class="header-block header-right">
+      <div class="date-now" id="datenow">--</div>
+      <div class="weather" id="weather">
+        <img id="weatherIcon" class="weather-icon" src="" style="display:none;">
+        <span id="weatherText">--°C</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="main-content" style="width: 99vw; max-width:1800px; margin:32px auto 0 auto; display:flex; flex-direction:column; align-items:center;">
+    {% set all_notices = [] %}
+    {% if global_announcement and global_announcement.is_active and global_announcement.message %}
+      {% set _ = all_notices.append({'content': global_announcement.message}) %}
+    {% endif %}
+    {% for aviso in notices %}
+      {% set _ = all_notices.append(aviso) %}
+    {% endfor %}
+    {% if all_notices %}
+      <div class="section-title">AVISOS</div>
+      <div class="notices">
+        {% for aviso in all_notices %}
+          <div class="notice-item">{{ aviso.content }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if images %}
+      <div class="section-title">IMAGENS</div>
+      <div class="img-slideshow">
+        {% for img in images %}
+          <img src="{{ url_for('static', filename=img.image_url) }}">
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+<script>
+// Relógio em tempo real e data
+function updateClock() {
+    var now = new Date();
+    var h = now.getHours().toString().padStart(2, '0');
+    var m = now.getMinutes().toString().padStart(2, '0');
+    document.getElementById('clock').textContent = h + ':' + m;
+    var opcoes = { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' };
+    var data = now.toLocaleDateString('pt-BR', opcoes);
+    data = data.charAt(0).toUpperCase() + data.slice(1);
+    document.getElementById('datenow').textContent = data.replace(/^\w/, c => c.toUpperCase());
+}
+setInterval(updateClock, 1000); updateClock();
+
+// Clima via API Flask + ícone de condição
+fetch('/api/weather').then(r => r.json()).then(data => {
+    let iconMap = {
+        "céu limpo": "01d",
+        "nuvens dispersas": "03d",
+        "algumas nuvens": "02d",
+        "nuvens": "04d",
+        "chuva leve": "09d",
+        "chuva": "10d",
+        "trovoada": "11d",
+        "neve": "13d",
+        "névoa": "50d"
+    };
+    var cond = (data.condicao || "").toLowerCase();
+    let icon = "01d";
+    for (const [txt, cod] of Object.entries(iconMap)) {
+        if (cond.includes(txt)) { icon = cod; break; }
+    }
+    document.getElementById('weatherText').textContent = data.temperatura + '°C — ' + data.condicao;
+    document.getElementById('weatherIcon').src = "https://openweathermap.org/img/wn/" + icon + "@4x.png";
+    document.getElementById('weatherIcon').style.display = "inline-block";
+}).catch(() => {});
+</script>
+</body>
+</html>

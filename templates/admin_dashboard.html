@@ -1,94 +1,224 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Dashboard Admin - Painel IFMS</title>
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard Admin - Painel IFMS</title>
+    <link
+      href="{{ url_for('static', filename='logo.png') }}"
+      rel="icon"
+      type="image/png"
+    />
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f0f2f5;
+        margin: 0;
+        color: #222;
+      }
+      .header {
+        background: #009639;
+        color: white;
+        padding: 20px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .header img {
+        height: 50px;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 36px auto;
+        padding: 0 8px;
+      }
+      .section-title {
+        color: #009639;
+        border-bottom: 2px solid #d6f5df;
+        margin-bottom: 18px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 22px;
+        margin-top: 22px;
+      }
+      .card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px #0002;
+        padding: 26px 24px 18px;
+      }
+      .card h3 {
+        margin-top: 0;
+        color: #009639;
+      }
+      .btn {
+        background: #009639;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 18px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        transition: background 0.2s;
+      }
+      .btn:hover {
+        background: #007a2e;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        margin-bottom: 11px;
+      }
 
-<style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
-        .header { background-color: #007a2e; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .header .title-container { display: flex; align-items: center; gap: 15px; }
-        .header h1 { margin: 0; font-size: 26px; }
-        .header img { max-height: 40px; }
-        .header .user-actions a { color: #ecf0f1; text-decoration: none; font-weight: 500; margin-left: 20px; transition: color 0.2s; }
-        .header .user-actions a:hover { color: #bdc3c7; }
-        .container { padding: 30px; max-width: 1200px; margin: 30px auto; }
-        .section-title { font-size: 22px; color: #007a2e; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #009639; }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
-        .card { background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.12); }
-        .card-header { background-color: #02c24b; color: white; padding: 15px 20px; font-size: 18px; font-weight: 600; }
-        .card-header.custom-header { background-color: #e67e22; }
-        .card-header.global-header { background-color: #8e44ad; }
-        .card-header.system-header { background-color: #34495e; }
-        .card-header.user-header { background-color: #2c3e50; }
-        .card-content { padding: 20px; }
-        .nav-list { list-style-type: none; padding: 0; margin: 0; }
-        .nav-list li { margin-bottom: 8px; }
-        .nav-list a { display: block; padding: 10px 15px; text-decoration: none; color: #2c3e50; background-color: #ecf0f1; border-radius: 4px; }
+      /* Cardzão do Pátio */
+      .card-patio {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px #0002;
+        padding: 26px 24px 18px;
+        margin: 38px auto 0 auto;
+        max-width: 1000px;
+        width: 95%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .card-patio h2 {
+        font-size: 2rem;
+        margin: 0 0 16px 0;
+        color: #009639;
+        letter-spacing: 0.5px;
+      }
+
+      .patio-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 26px;
+        justify-content: center;
+        width: 100%;
+      }
+      .patio-actions .btn {
+        background: #009639;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 18px 18px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        transition: background 0.2s;
+      }
+      @media (max-width: 1020px) {
+        .container,
+        .card-patio {
+          max-width: 98vw;
+        }
+        .patio-actions .btn {
+          font-size: 1rem;
+          padding: 12px 0;
+        }
+      }
     </style>
-<link href="{{ url_for('static', filename='logo.png') }}" rel="icon" type="image/png"/></head>
-<body>
-<div class="header" style="background-color: #009639; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;">
-<div class="title-container">
-<img alt="Logo IFMS" src="{{ url_for('static', filename='ifms.svg') }}"/>
-<h1>Painel Administrativo Central</h1>
-</div>
-<div class="user-actions"><a href="{{ url_for('admin_logout') }}" onmouseout="this.style.color='white'" onmouseover="this.style.color='#bdc3c7'" style="color:white; text-decoration:none; transition: color 0.2s;">Sair (Logout)</a></div>
-</div>
-<div class="container">
-<h2 class="section-title">Gerenciamento de Conteúdo</h2>
-<div class="grid-container">
-<div class="card">
-<div class="card-header global-header">Conteúdo Global</div>
-<div class="card-content">
-<ul class="nav-list">
-<li><a href="{{ url_for('admin_global_announcement') }}">Aviso Geral</a></li>
-</ul>
-</div>
-</div>
-<div class="card">
-<div class="card-header">Telas de Conteúdo Fixo</div>
-<div class="card-content">
-<ul class="nav-list">
-<li><a href="{{ url_for('admin_edit_patio_notices') }}">Avisos do Pátio</a></li>
-<li><a href="{{ url_for('admin_edit_patio_menu') }}">Cardápio do Pátio</a></li>
-<li><a href="{{ url_for('admin_edit_interval_schedule') }}">Horário do Intervalo</a></li>
-</ul>
-</div>
-</div>
-<div class="card">
-<div class="card-header custom-header">Telas Personalizáveis</div>
-<div class="card-content">
-<p style="font-size: 0.9em; color: #555; margin-bottom: 15px;">Crie e edite telas com layouts e conteúdos flexíveis.</p>
-<ul class="nav-list">
-<li><a href="{{ url_for('admin_list_custom_screens') }}">Gerenciar Telas Personalizáveis</a></li>
-<li><a href="{{ url_for('admin_list_images', screen_type='geral') }}">Banco de Imagens Agendadas</a></li>
-</ul>
-</div>
-</div>
-</div>
-<h2 class="section-title" style="margin-top: 40px;">Configurações do Sistema</h2>
-<div class="grid-container">
-<div class="card">
-<div class="card-header system-header">Dispositivos</div>
-<div class="card-content">
-<ul class="nav-list">
-<li><a href="{{ url_for('admin_list_devices') }}">Gerenciar Dispositivos (TVs)</a></li>
-</ul>
-</div>
-</div>
-<div class="card">
-<div class="card-header user-header">Usuários</div>
-<div class="card-content">
-<ul class="nav-list">
-<li><a href="{{ url_for('admin_users') }}">Gerenciar Usuários</a></li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</body>
+  </head>
+  <body>
+    <div class="header">
+      <div>
+        <img
+          src="{{ url_for('static', filename='ifms.svg') }}"
+          alt="Logo IFMS"
+        />
+      </div>
+      <h1>Painel Administrativo IFMS</h1>
+      <a
+        href="{{ url_for('admin_logout') }}"
+        class="btn"
+        style="background: #d32f2f"
+        >Sair</a
+      >
+    </div>
+    <div class="container">
+      <div class="card" style="margin-bottom: 24px">
+        <h2 class="section-title">Como colocar uma TV no ar?</h2>
+        <ol>
+          <li>
+            Crie um <strong>Modelo de Tela</strong> (com nome, layout, imagens,
+            avisos individuais).
+          </li>
+          <li>
+            Cadastre o <strong>Dispositivo</strong> (TV) e associe ao Modelo
+            desejado.
+          </li>
+          <li>
+            Pronto! Tudo que você editar no Modelo será mostrado automaticamente
+            nas TVs que usam ele.
+          </li>
+        </ol>
+      </div>
+      <div class="card-patio">
+        <h2>Tela do Pátio</h2>
+        <div class="patio-actions">
+          <a class="btn" href="{{ url_for('display_patio') }}" target="_blank"
+            >Visualizar Tela do Pátio</a
+          >
+          <a class="btn" href="{{ url_for('admin_edit_patio_menu') }}"
+            >Configurar Cardápio</a
+          >
+          <a class="btn" href="{{ url_for('admin_edit_patio_notices') }}"
+            >Configurar Avisos</a
+          >
+          <a class="btn" href="{{ url_for('admin_interval_schedules') }}"
+            >Configurar Intervalos</a
+          >
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3>Modelos de Tela</h3>
+          <ul>
+            <li>
+              <a class="btn" href="{{ url_for('admin_models') }}"
+                >Gerenciar Modelos</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Dispositivos (TVs)</h3>
+          <ul>
+            <li>
+              <a class="btn" href="{{ url_for('admin_devices') }}"
+                >Gerenciar Dispositivos</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Usuários do Painel</h3>
+          <ul>
+            <li>
+              <a class="btn" href="{{ url_for('admin_users') }}"
+                >Gerenciar Usuários</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Aviso Geral</h3>
+          <ul>
+            <li>
+              <a class="btn" href="{{ url_for('admin_global_announcement') }}"
+                >Configurar Aviso Geral</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Card grandão do Pátio fora do grid -->
+    </div>
+  </body>
 </html>
