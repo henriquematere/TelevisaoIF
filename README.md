@@ -49,6 +49,70 @@ Tudo pode ser gerenciado de forma remota pelo painel admin.
    ```
 5. Acesse em [http://127.0.0.1:5000/admin/login](http://127.0.0.1:5000/admin/login)  
    O painel admin fica em `/admin`.
+## :information_source: Guia Completo do Painel Administrativo
+
+### Como colocar uma TV no ar (passo a passo):
+
+1. **Crie um Modelo de Tela**
+   - Acesse o menu **“Modelos de Tela”** (botão “Gerenciar Modelos”).
+   - Clique em “Adicionar Modelo”.
+   - Escolha um nome para o modelo (ex: “Secretaria”, “Pátio”, etc).
+   - Defina avisos, imagens (com opção de slideshow e agendamento) e o layout desejado.
+   - *Função*: Um modelo define o que será exibido em uma ou mais TVs, centralizando as configurações de conteúdo.
+
+2. **Cadastre um Dispositivo (TV)**
+   - Acesse o menu **“Dispositivos (TVs)”** (botão “Gerenciar Dispositivos”).
+   - Clique em “Adicionar Dispositivo”.
+   - Dê um nome para o dispositivo (ex: “TV Pátio Central”).
+   - Escolha o modelo de tela que será exibido nesta TV.
+   - (Opcional) Adicione uma observação de localização.
+   - *Função*: O dispositivo representa cada TV física; vincular a um modelo garante que ela sempre mostre o conteúdo certo.
+
+3. **Configure conteúdos do modelo (opcional e a qualquer momento)**
+   - **Avisos Individuais**: Acesse o modelo e adicione/remova avisos que serão exibidos apenas nas TVs desse modelo.
+   - **Imagens**: Faça upload de imagens para slideshow, defina períodos de exibição.
+   - **Cardápio/Refeições** (para modelos tipo pátio/refeitório): Edite o cardápio do dia e/ou imagem.
+   - **Intervalos**: Configure horários para exibição de intervalos, avisos sonoros, etc.
+   - **Aviso Geral**: Acesse “Aviso Geral” para cadastrar um aviso que será exibido em todas as telas/TVs do campus.
+
+4. **Gerencie usuários do painel**
+   - Vá em “Usuários do Painel” > “Gerenciar Usuários”.
+   - Cadastre novos administradores ou remova/edite usuários existentes.
+   - *Função*: Controle quem pode acessar o painel, garantindo segurança.
+
+5. **(Opcional) Configure a previsão do tempo**
+   - Acesse o arquivo `app.py` e insira sua chave da API OpenWeatherMap.
+   - O sistema exibirá automaticamente a previsão do tempo nas TVs.
+
+6. **Pronto!**
+   - Tudo que você alterar no painel administrativo é atualizado **instantaneamente** nas TVs cadastradas.
+
+---
+
+### Função de cada área do painel
+
+- **Tela do Pátio**
+  - Visualizar a tela de exibição como aparece na TV do pátio.
+  - Configurar cardápio e avisos exclusivos do pátio.
+  - Definir intervalos (ex: horário de recreio, almoço).
+
+- **Modelos de Tela**
+  - Criar, editar ou remover modelos (layouts).
+  - Cada modelo pode ter suas imagens, avisos, regras e horários próprios.
+
+- **Dispositivos (TVs)**
+  - Cadastrar TVs e associar ao modelo correspondente.
+  - Gerenciar ou remover dispositivos (ex: se trocar de TV ou mudar de local).
+
+- **Usuários do Painel**
+  - Gerenciar administradores e operadores do sistema.
+  - Resetar senha, remover acesso, etc.
+
+- **Aviso Geral**
+  - Configurar avisos de destaque que aparecem em todas as TVs ao mesmo tempo.
+  - Útil para emergências, comunicados institucionais, etc.
+
+---
 
 ## :camera: Prints
 
